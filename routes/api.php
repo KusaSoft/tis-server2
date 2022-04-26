@@ -42,80 +42,51 @@ Route::get('groups/{subject_id}/{user_id}',function($subject_id,$user_id){
         return $val->only(['group']);
     });
 });
-
 Route::get('groupsExc/{subject_id}/{user_id}',function($subject_id,$user_id){
     $groups = SubjectUser::where('subject_id',$subject_id)->where('user_id','!=',$user_id)->get();
     return $groups->map(function($val){
         return $val->only(['group']);
     });
 });
-
-
-
-
 Route::post('reservation-request',function(Request $request){
     $reservation = new UserBooking();
     $reservation->request_reason = $request->request_reason;
     $reservation->user_id = (User::where('name',$request->name)->first()->id); 
     $reservation->subject_id = (Subject::where('name_subject',$request->subject)->first()->id);
+    $reservation->horario_ini = $request->horario_ini;
+    $reservation->horario_fin = $request->horario_fin;
     $reservation->classroom_id = 1;
     $reservation->state = $request->state;
     $reservation->description  = $request->teacher_list;
     $reservation->group = $request->group;
-
-    // return date('Y-m-d H:i:s');
     return response()->json([
         "nombre" => $request->name,
         "materia" => $request->subject,
-        "grupos" => ":(",
         "date_time" => date('Y-m-d H:i:s'),
-        "reservation_time" => $request->horario_ini
+        "reservation_time" => $reservation->horario_ini
     ]);
 });
-
-Route::post('reservation-request-incom',function(Request $request){
-    $reservation = new UserBooking();
-    $reservation->request_reason = $request->request_reason;
-    $reservation->user_id = (User::where('name',$request->name)->first()->id); 
-    $reservation->subject_id = (Subject::where('name_subject',$request->subject)->first()->id);
-    $reservation->classroom_id = 1;
-    $reservation->state = $request->state;
-    $reservation->description  = $request->teacher_list;
-    $reservation->group = $request->group;
-
-    // return date('Y-m-d H:i:s');
-    return response()->json([
-        "nombre" => $request->name,
-        "materia" => $request->subject,
-        "grupos" => ":(",
-        "date_time" => date('Y-m-d H:i:s'),
-        "reservation_time" => $request->horario_ini
-    ]);
-});
-
 
 Route::get('reservation/{user_id}/{state}', function($user_id, $state){
-    $reservation = UserBooking::where('user_id',$user_id)
+    $user_name = User::find($user_id)->name;
+    $reservations = UserBooking::where('user_id',$user_id)
                                 ->where('state',$state)
                                 ->get();
-    return $reservation;
+    return $reservations->map(function($elem) use($user_name){
+        $subject_name = Subject::find($elem->subject_id)->name_subject;
+        $classroom_name = Classroom::find(1)->name_classroom;
+        return array("id"=>$elem->id,"name"=>$user_name,"subject"=>$subject_name,
+                 "classroom"=>$classroom_name,"horario_ini"=>$elem->horario_ini,
+                 "horario_fin"=>$elem->horario_fin,"state"=>$elem->state,"group"=>$elem->group
+                 );
+    });
 });
-Route::delete('draft/{user_id}/{userbooking_id}', function($user_id, $userbooking_id){
-    $reservation = UserBooking::where('user_id',$user_id)
-                                ->where('userbooking_id',$userbooking_id)
-                                ->delete();
-    return "eliminado con exito";
+
+Route::delete('draft/{userbooking_id}', function($userbooking_id){
+    $reservation = UserBooking::find($userbooking_id)->delete();
+    return response()->json([
+        "message" => "eliminado con exito"
+    ]);
 });
 
 
-
-Route::post('create-user',function(Request $request){
-    $newUser = new User();
-
-    $newUser->save();
-});
-Route::post('create-role', function(Request $request){
-    $newRole = new Role();
-    $newRole->
-    $newRole->save();
-});
