@@ -25,14 +25,14 @@ Route::middleware('auth:sanctum')->get('/user', function () {
 
 
 Route::get('subjects',function(){
-    return Subject::all('name_subject');
+    return Subject::all('id','name_subject');
 });
 
 Route::get('subjects/{user_id}',function($user_id){
     return User::find($user_id)->groups->map(function($val){
         $name = $val->name_subject;
         $group = $val->pivot->group;
-        return array("subject_name"=>$name, "group"=>$group);
+        return array("id"=>$val->id,"subject_name"=>$name, "group"=>$group);
     });
 }); 
 
@@ -59,7 +59,9 @@ Route::post('reservation-request',function(Request $request){
     $reservation->state = $request->state;
     $reservation->description  = $request->teacher_list;
     $reservation->group = $request->group;
+    $reservation->save();
     return response()->json([
+        "id" => UserBooking::all()->first()->id,
         "nombre" => $request->name,
         "materia" => $request->subject,
         "date_time" => date('Y-m-d H:i:s'),
