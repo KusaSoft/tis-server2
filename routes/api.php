@@ -19,12 +19,12 @@ use App\Models\UserBooking;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function () {
     return $request->user();
 });
 
 
-Route::get('subjects',function(Request $request){
+Route::get('subjects',function(){
     return Subject::all('name_subject');
 });
 
@@ -91,3 +91,29 @@ Route::post('reservation-request-incom',function(Request $request){
     ]);
 });
 
+
+Route::get('reservation/{user_id}/{state}', function($user_id, $state){
+    $reservation = UserBooking::where('user_id',$user_id)
+                                ->where('state',$state)
+                                ->get();
+    return $reservation;
+});
+Route::delete('draft/{user_id}/{userbooking_id}', function($user_id, $userbooking_id){
+    $reservation = UserBooking::where('user_id',$user_id)
+                                ->where('userbooking_id',$userbooking_id)
+                                ->delete();
+    return "eliminado con exito";
+});
+
+
+
+Route::post('create-user',function(Request $request){
+    $newUser = new User();
+
+    $newUser->save();
+});
+Route::post('create-role', function(Request $request){
+    $newRole = new Role();
+    $newRole->
+    $newRole->save();
+});

@@ -15,14 +15,16 @@ class CreateUserBookingTables extends Migration
     {
         Schema::create('user_booking', function (Blueprint $table) {
             $table->id();
-            $table->date("date_and_time");
-            $table->string("request_reason");
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('subject_id');
             $table->unsignedBigInteger('classroom_id');
+            $table->date("date")->nullable();
+            $table->string("request_reason")->nullable();
+            $table->string("horario_ini")->nullable();
+            $table->string("horario_fin")->nullable();
             $table->string("state");
-            $table->integer("group");
-            $table->string("description",120);
+            $table->integer("group")->nullable();
+            $table->string("description",120)->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('subject_id')->references('id')->on('subjects')->onUpdate('cascade')->onDelete('cascade');
