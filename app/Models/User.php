@@ -12,6 +12,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function groups(){
+        return $this->belongsToMany(Subject::class)->withPivot(['group']);
+    }
 
     public function role(){
         return $this->belongsTo(Role::class);

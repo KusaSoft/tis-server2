@@ -29,10 +29,12 @@ Route::get('subjects',function(){
 });
 
 Route::get('subjects/{user_id}',function($user_id){
-    return User::find($user_id)->subjects->map(function($val){
-        return $val->only(['name_subject']);
+    return User::find($user_id)->groups->map(function($val){
+        $name = $val->name_subject;
+        $group = $val->pivot->group;
+        return array("subject_name"=>$name, "group"=>$group);
     });
-});
+}); 
 
 Route::get('groups/{subject_id}/{user_id}',function($subject_id,$user_id){
     $groups = SubjectUser::where('subject_id',$subject_id)->where('user_id',$user_id)->get();
