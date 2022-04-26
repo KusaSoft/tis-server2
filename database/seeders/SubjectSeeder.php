@@ -15,7 +15,7 @@ class SubjectSeeder extends Seeder
     public function run()
     {
         $intro = new Subject();
-        $intro->name_subject = "1, Introduccion a la programacion";
+        $intro->name_subject = "Introduccion a la programacion";
         $intro->save();
 
         $elem = new Subject();
