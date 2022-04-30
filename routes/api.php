@@ -194,3 +194,25 @@ Route::post('/login', function (Request $request) {
         "token" => "no hay token"
     ]);
 });
+
+
+
+
+Route::get('test/users',function(){
+    return User::all();
+});
+Route::get('test/subjects',function(){
+    return Subject::all();
+});
+Route::get('test/classrooms',function(){
+    return Classroom::all();
+});
+Route::get('test/subject_user',function(){
+    return SubjectUser::all();
+});
+Route::get('test/user_booking',function(){
+    return UserBooking::all();
+});
+Route::get('test/roles',function(){
+    return Role::all();
+});

@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'role_id' => '1',
-                'name' => 'Carla Salazar',
+                'name' => 'Carla Salazar    ',
                 'password' => '12345',
                 'email' => 'carla@gmail.com'
             ]
