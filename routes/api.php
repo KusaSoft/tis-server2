@@ -50,7 +50,7 @@ Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
         $val->user_id = $user_id;
         $val->name = $user_name;
         $val->subject = $subject_name;
-        return $val->only(['id','group', 'user_id', 'name', 'subject']);
+        return $val->only(['id', 'group', 'user_id', 'name', 'subject']);
     });
 });
 
@@ -59,7 +59,7 @@ Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
 
 Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', '!=', $user_id)->get();
-    if(count($groups) == 0){
+    if (count($groups) == 0) {
         return response()->json([
             "message" => "no hay grupos registrados"
         ]);
@@ -72,11 +72,11 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
     $subject_name = Subject::find($subject_id)->name_subject;
 
 
-    return $groups->map(function ($val) use ( $user_id, $user_name, $subject_name) {
+    return $groups->map(function ($val) use ($user_id, $user_name, $subject_name) {
         $val->user_id = $user_id;
         $val->name = $user_name;
         $val->subject = $subject_name;
-        return $val->only(['id','group','user_id', 'name', 'subject' ]);
+        return $val->only(['id', 'group', 'user_id', 'name', 'subject']);
     });
 });
 
@@ -89,7 +89,7 @@ Route::post('reservation-request', function (Request $request) {
     $reservation->user_id =      (User::where('name', $request->name)->first()->id);
     $reservation->subject_id = (Subject::where('name_subject', $request->subject)->first()->id);
 
-    if (isset($reservation->horario_ini)) {
+    if (isset($request->horario_ini)) {
         $reservation->horario_ini = $request->horario_ini;
     }
 
@@ -161,7 +161,7 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
 });
 
 
-Route::get('reservation/{userbooking_id}',function($userbooking_id){
+Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
     return UserBooking::find($userbooking_id);
 });
 
@@ -175,8 +175,7 @@ Route::delete('draft/{userbooking_id}', function ($userbooking_id) {
         return response()->json([
             "message" => "eliminado con exito"
         ]);
-    }
-    else{
+    } else {
         return response()->json([
             "message" => "no existe esta reserva"
         ]);
@@ -189,34 +188,39 @@ Route::post('/login', function (Request $request) {
     $username = $request->email;
     $password = $request->password;
     $users = User::where('email', $username)->where('password', $password)->get();
-    $user = $users[0];
-    return response()->json([
-        "id" => $user->id,
-        "name" => $user->name,
-        "email" => $user->email,
-        "role" => $user->role->name,
-        "token" => "no hay token"
-    ]);
+    if (isset($users)) {
+        $user = $users[0];
+        return response()->json([
+            "id" => $user->id,
+            "name" => $user->name,
+            "email" => $user->email,
+            "role" => $user->role->name,
+            "token" => "no hay token"
+        ]);
+    }
+    else{
+        return response()->json([
+            "message" => "no existe este usuario"
+        ]);
+    }
 });
 
 
-
-
-Route::get('test/users',function(){
+Route::get('test/users', function () {
     return User::all();
 });
-Route::get('test/subjects',function(){
+Route::get('test/subjects', function () {
     return Subject::all();
 });
-Route::get('test/classrooms',function(){
+Route::get('test/classrooms', function () {
     return Classroom::all();
 });
-Route::get('test/subject_user',function(){
+Route::get('test/subject_user', function () {
     return SubjectUser::all();
 });
-Route::get('test/user_booking',function(){
+Route::get('test/user_booking', function () {
     return UserBooking::all();
 });
-Route::get('test/roles',function(){
+Route::get('test/roles', function () {
     return Role::all();
 });
