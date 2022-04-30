@@ -60,6 +60,11 @@ Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
 
 Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', '!=', $user_id)->get();
+    if(count($groups) == 0){
+        return response()->json([
+            "message" => "no hay grupos registrados"
+        ]);
+    }
     $user_id = $groups[0]->user_id;
     $subject_id = $groups[0]->subject_id;
     $user_name = User::find($user_id)->name;
