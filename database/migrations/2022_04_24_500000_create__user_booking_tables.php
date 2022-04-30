@@ -18,7 +18,8 @@ class CreateUserBookingTables extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('subject_id');
             $table->unsignedBigInteger('classroom_id');
-            $table->dateTime("date")->nullable();
+            $table->dateTime("register_date")->nullable();
+            $table->date('reservation_date')->nullable();
             $table->string("request_reason")->nullable();
             $table->string("horario_ini")->nullable();
             $table->string("horario_end")->nullable();

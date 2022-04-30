@@ -95,6 +95,7 @@ Route::post('reservation-request', function (Request $request) {
 
     $reservation->horario_end = $request->horario_end;
     $reservation->request_reason = $request->request_reason;
+    $reservation->reservation_date = $request->reservation_date;
 
     $reservation->classroom_id = 1;
     $reservation->state = $request->state;
@@ -123,7 +124,7 @@ Route::post('reservation-request', function (Request $request) {
     }
     $reservation->other_groups = $other_groups;
     date_default_timezone_set("America/La_Paz");
-    $reservation->date = date('Y-m-d H:i:s');
+    $reservation->register_date = date('Y-m-d H:i:s');
     $reservation->save();
     return response()->json([
         "id" => $reservation->id,
@@ -155,7 +156,8 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
             "id" => $elem->id, "name" => $user_name, "subject" => $subject_name,
             "classroom" => $classroom_name, "horario_ini" => $elem->horario_ini,
             "horario_end" => $elem->horario_fin, "state" => $elem->state, "group_list" => $elem->group_list, "other_group_list" => $elem->other_groups,
-            "date_time" => $elem->date
+            "reservation_date" => $elem->reservation_date,
+            "register_date" => $elem->register_date
         );
     });
 });
