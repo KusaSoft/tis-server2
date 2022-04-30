@@ -164,7 +164,31 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
 
 
 Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
-    return UserBooking::find($userbooking_id);
+    $userbooking = UserBooking::find($userbooking_id);
+    if(isset($userbooking)){
+        $user_id = $userbooking->user_id;
+        $user_name = User::find($user_id)->name;
+        $subject_id = $userbooking->subject_id;
+        $subject_name = Subject::find($subject_id)->name_subject;
+        return response()->json([
+            "user_id" => $user_id,
+            "name" => $user_name,
+            "subject_id" => $subject_id,
+            "subject" => $subject_name,
+            "register_date" => $userbooking->register_date,
+            "reservation_date" => $userbooking->reservation_date,
+            "request_reason" => $userbooking->request_reason,
+            "horario_ini" => $userbooking->horario_ini,
+            "horario_end" => $userbooking->horario_end,
+            "state" => $userbooking->state,
+            "group_list" => $userbooking->group_list,
+            "other_groups" => $userbooking->other_groups
+        ]);
+    }else{
+        return response()->json([
+            "message" => "no existe esta reserva con el id especificado"
+        ]);
+    }
 });
 
 
