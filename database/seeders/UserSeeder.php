@@ -19,26 +19,32 @@ class UserSeeder extends Seeder
             [
                 'role_id' => '1',
                 'name' => 'Leticia Blanco',
-                'password' => 'leticia123',
+                'password' => '12345',
                 'email' => 'leticia@gmail.com'
             ],
             [
                 'role_id' => '1',
                 'name' => 'Corina Flores',
-                'password' => 'corina123',
+                'password' => '12345',
                 'email' => 'corina@gmail.com'
             ],
             [
                 'role_id' => '2',
                 'name' => 'Juan Zarate',
-                'password' => 'juan123',
+                'password' => '12345',
                 'email' => 'juan@gmail.com'
             ],
             [
                 'role_id' => '3',
                 'name' => 'Alfredo Guzman',
-                'password' => 'alfredo123',
+                'password' => '12345',
                 'email' => 'alfredo@gmail.com'
+            ],
+            [
+                'role_id' => '1',
+                'name' => 'Carla Salazar Serrudo',
+                'password' => '12345',
+                'email' => 'carla@gmail.com'
             ]
 
         ];

@@ -23,10 +23,10 @@ class UserBookingSeeder extends Seeder
                 "date" => '2022-04-15',
                 "request_reason" => 'Primer parcial de introduccion',
                 "horario_ini" => "12:45",
-                "horario_fin" => "14:15",
+                "horario_end" => "14:15",
                 "state" => "sent",
-                "group" => 3,
-                "description" => '[{"name":"Vladimir","group_list":[4,2]},{"name":"Corina","group_list":[3]}]'
+                "group_list" => "1 2",
+                "other_groups" => "3"
             ],
             [
                 "user_id" => 1,
@@ -35,10 +35,10 @@ class UserBookingSeeder extends Seeder
                 "date" => '2022-05-18',
                 "request_reason" => 'Examen de elementos',
                 "horario_ini" => "15:45",
-                "horario_fin" => "17:15",
+                "horario_end" => "17:15",
                 "state" => "sent",
-                "group" => 1,
-                "description" => ''
+                "group_list" => "1",
+                "other_groups" => ""
             ],
             [
                 "user_id" => 1,
@@ -47,10 +47,10 @@ class UserBookingSeeder extends Seeder
                 "date" => '2022-04-04',
                 "request_reason" => null,
                 "horario_ini" => "09:25",
-                "horario_fin" => null,
+                "horario_end" => null,
                 "state" => "eraser",
-                "group" => null,
-                "description" => ''
+                "group_list" => null,
+                "other_groups"=>null
             ],
         ];
         DB::table('user_booking')->insert($data);

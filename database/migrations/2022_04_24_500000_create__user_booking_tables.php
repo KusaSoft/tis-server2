@@ -18,13 +18,13 @@ class CreateUserBookingTables extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('subject_id');
             $table->unsignedBigInteger('classroom_id');
-            $table->date("date")->nullable();
+            $table->dateTime("date")->nullable();
             $table->string("request_reason")->nullable();
             $table->string("horario_ini")->nullable();
-            $table->string("horario_fin")->nullable();
+            $table->string("horario_end")->nullable();
             $table->string("state");
-            $table->integer("group")->nullable();
-            $table->string("description",120)->nullable();
+            $table->string("group_list")->nullable();
+            $table->string("other_groups",100)->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('subject_id')->references('id')->on('subjects')->onUpdate('cascade')->onDelete('cascade');
