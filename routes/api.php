@@ -161,6 +161,10 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
 });
 
 
+Route::get('reservation/{userbooking_id}',function($userbooking_id){
+    return UserBooking::find($userbooking_id);
+});
+
 
 
 
