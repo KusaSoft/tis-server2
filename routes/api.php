@@ -112,6 +112,8 @@ Route::post('reservation-request', function (Request $request) {
     }
     $reservation->group_list = $group_list;
 
+    $reservation->total_students = $request->total_students;
+
     $other_groups = "";
     $other_group_list = $request->other_group_list;
     $len2 = count($other_group_list);
@@ -128,9 +130,13 @@ Route::post('reservation-request', function (Request $request) {
     $reservation->save();
     return response()->json([
         "id" => $reservation->id,
+        "user_id" => $reservation->user_id,
         "name" => $request->name,
+        "subject_id" => $reservation->subject_id,
         "subject" => $request->subject,
-        "date creation" => date('Y-m-d H:i:s'),
+        "total_students" => $request->total_students,
+        "register_date" => $reservation->register_date,
+        "reservation_date" => $reservation->reservation_date,
         "horario_ini" => $reservation->horario_ini,
         "horario_end" => $reservation->horario_end,
         "state" => $reservation->state,
@@ -153,9 +159,16 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
         $subject_name = Subject::find($elem->subject_id)->name_subject;
         $classroom_name = Classroom::find(1)->name_classroom;
         return array(
-            "id" => $elem->id, "name" => $user_name, "subject" => $subject_name,
-            "classroom" => $classroom_name, "horario_ini" => $elem->horario_ini,
-            "horario_end" => $elem->horario_fin, "state" => $elem->state, "group_list" => $elem->group_list, "other_group_list" => $elem->other_groups,
+            "id" => $elem->id, 
+            "name" => $user_name, 
+            "subject" => $subject_name,
+            "classroom" => $classroom_name, 
+            "total_students" => $elem->total_students,
+            "horario_ini" => $elem->horario_ini,
+            "horario_end" => $elem->horario_fin, 
+            "state" => $elem->state, 
+            "group_list" => $elem->group_list, 
+            "other_group_list" => $elem->other_groups,
             "reservation_date" => $elem->reservation_date,
             "register_date" => $elem->register_date
         );
@@ -177,6 +190,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "subject" => $subject_name,
             "register_date" => $userbooking->register_date,
             "reservation_date" => $userbooking->reservation_date,
+            "total_students" => $userbooking->total_students,
             "request_reason" => $userbooking->request_reason,
             "horario_ini" => $userbooking->horario_ini,
             "horario_end" => $userbooking->horario_end,

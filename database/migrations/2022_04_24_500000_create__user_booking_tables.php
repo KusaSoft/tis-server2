@@ -23,6 +23,7 @@ class CreateUserBookingTables extends Migration
             $table->string("request_reason")->nullable();
             $table->string("horario_ini")->nullable();
             $table->string("horario_end")->nullable();
+            $table->string("total_students")->nullable();
             $table->string("state");
             $table->string("group_list")->nullable();
             $table->string("other_groups",100)->nullable();
