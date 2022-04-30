@@ -47,13 +47,12 @@ Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     $subject_name = Subject::find($subject_id)->name_subject;
 
     return $groups->map(function ($val) use ($user_id, $user_name, $subject_name) {
-        $val->id = $user_id;
+        $val->user_id = $user_id;
         $val->name = $user_name;
         $val->subject = $subject_name;
-        return $val->only(['group', 'id', 'name', 'subject']);
+        return $val->only(['id','group', 'user_id', 'name', 'subject']);
     });
 });
-
 
 
 
@@ -65,16 +64,19 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
             "message" => "no hay grupos registrados"
         ]);
     }
+    $group_id = $groups[0]->id;
+    $group = $groups[0]->group;
     $user_id = $groups[0]->user_id;
     $subject_id = $groups[0]->subject_id;
     $user_name = User::find($user_id)->name;
     $subject_name = Subject::find($subject_id)->name_subject;
 
-    return $groups->map(function ($val) use ($user_id, $user_name, $subject_name) {
-        $val->id = $user_id;
+
+    return $groups->map(function ($val) use ( $user_id, $user_name, $subject_name) {
+        $val->user_id = $user_id;
         $val->name = $user_name;
         $val->subject = $subject_name;
-        return $val->only(['id', 'name', 'subject', 'group']);
+        return $val->only(['id','group','user_id', 'name', 'subject' ]);
     });
 });
 
