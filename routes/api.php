@@ -164,6 +164,7 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
             "subject" => $subject_name,
             "classroom" => $classroom_name, 
             "total_students" => $elem->total_students,
+            "request_reason" => $elem->request_reason,
             "horario_ini" => $elem->horario_ini,
             "horario_end" => $elem->horario_fin, 
             "state" => $elem->state, 
