@@ -125,7 +125,20 @@ Route::post('reservation-request', function (Request $request) {
         $res->other_groups = $other_groups;
         $res->save();
         return response()->json([
-            "message"=> "solicitud actualizada"
+            "id" => $res->id,
+            "user_id" => $res->user_id,
+            "name" => $request->name,
+            "subject_id" => $res->subject_id,
+            "subject" => $request->subject,
+            "total_students" => $request->total_students,
+            "register_date" => $res->register_date,
+            "reservation_date" => $res->reservation_date,
+            "horario_ini" => $res->horario_ini,
+            "horario_end" => $res->horario_end,
+            "state" => $res->state,
+            "request_reason" => $res->request_reason,
+            "group_list" => $res->group_list,
+            "other_group_list" => $res->other_groups
         ]);
     } else {
         //creamos una nueva solicitud de reserva
