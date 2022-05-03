@@ -339,7 +339,7 @@ Route::post('/login', function (Request $request) {
     $username = $request->email;
     $password = $request->password;
     $users = User::where('email', $username)->where('password', $password)->get();
-    if (isset($users)) {
+    if (count($users) >= 1) {
         $user = $users[0];
         return response()->json([
             "id" => $user->id,
