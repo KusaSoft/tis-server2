@@ -82,68 +82,105 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
 
 
 
-
-
 Route::post('reservation-request', function (Request $request) {
-    $reservation = new UserBooking();
-    $reservation->user_id =      (User::where('name', $request->name)->first()->id);
-    $reservation->subject_id = (Subject::where('name_subject', $request->subject)->first()->id);
 
-    if (isset($request->horario_ini)) {
+    if (isset($request->id)) {
+        //actualizamos solicitud de reserva que se especifica
+        $res = UserBooking::find($request->id);
+        if(!isset($res)){
+            return response()->json([
+                "message" => "no existe la solicitu de reserva especificada"
+            ]);
+        }
+        $res->user_id = (User::where('name', $request->name)->first()->id);
+        $res->subject_id = (Subject::where('name_subject', $request->subject)->first()->id);
+        $res->horario_ini = $request->horario_ini;
+        $res->horario_end = $request->horario_end;
+        $res->request_reason = $request->request_reason;
+        $res->reservation_date = $request->reservation_date;
+        $res->total_students = $res->total_students;
+        $res->state = $request->state;
+        $group_list = "";
+        $groups = $request->group_list;
+        $len = count($groups);
+        for ($i = 0; $i < $len; $i++) {
+            if ($i == 0) {
+                $group_list .= $groups[$i];
+            } else {
+                $group_list .= " " . $groups[$i];
+            }
+        }
+        $res->group_list = $group_list;
+
+        $other_groups = "";
+        $other_group_list = $request->other_group_list;
+        $len2 = count($other_group_list);
+        for ($i = 0; $i < $len2; $i++) {
+            if ($i == 0) {
+                $other_groups .= $other_group_list[$i];
+            } else {
+                $other_groups .= " " . $other_group_list[$i];
+            }
+        }
+        $res->other_groups = $other_groups;
+        $res->save();
+        return response()->json([
+            "message"=> "solicitud actualizada"
+        ]);
+    } else {
+        //creamos una nueva solicitud de reserva
+        $reservation = new UserBooking();
+        $reservation->user_id    = (User::where('name', $request->name)->first()->id);
+        $reservation->subject_id = (Subject::where('name_subject', $request->subject)->first()->id);
         $reservation->horario_ini = $request->horario_ini;
-    }
-
-    $reservation->horario_end = $request->horario_end;
-    $reservation->request_reason = $request->request_reason;
-    $reservation->reservation_date = $request->reservation_date;
-
-    $reservation->classroom_id = 1;
-    $reservation->state = $request->state;
-
-    $group_list = "";
-    $groups = $request->group_list;
-    $len = count($groups);
-    for ($i = 0; $i < $len; $i++) {
-        if ($i == 0) {
-            $group_list .= $groups[$i];
-        } else {
-            $group_list .= " " . $groups[$i];
+        $reservation->horario_end = $request->horario_end;
+        $reservation->request_reason = $request->request_reason;
+        $reservation->reservation_date = $request->reservation_date;
+        $reservation->classroom_id = 1;
+        $reservation->state = $request->state;
+        $group_list = "";
+        $groups = $request->group_list;
+        $len = count($groups);
+        for ($i = 0; $i < $len; $i++) {
+            if ($i == 0) {
+                $group_list .= $groups[$i];
+            } else {
+                $group_list .= " " . $groups[$i];
+            }
         }
-    }
-    $reservation->group_list = $group_list;
-
-    $reservation->total_students = $request->total_students;
-
-    $other_groups = "";
-    $other_group_list = $request->other_group_list;
-    $len2 = count($other_group_list);
-    for ($i = 0; $i < $len2; $i++) {
-        if ($i == 0) {
-            $other_groups .= $other_group_list[$i];
-        } else {
-            $other_groups .= " " . $other_group_list[$i];
+        $reservation->group_list = $group_list;
+        $reservation->total_students = $request->total_students;
+        $other_groups = "";
+        $other_group_list = $request->other_group_list;
+        $len2 = count($other_group_list);
+        for ($i = 0; $i < $len2; $i++) {
+            if ($i == 0) {
+                $other_groups .= $other_group_list[$i];
+            } else {
+                $other_groups .= " " . $other_group_list[$i];
+            }
         }
+        $reservation->other_groups = $other_groups;
+        date_default_timezone_set("America/La_Paz");
+        $reservation->register_date = date('Y-m-d H:i:s');
+        $reservation->save();
+        return response()->json([
+            "id" => $reservation->id,
+            "user_id" => $reservation->user_id,
+            "name" => $request->name,
+            "subject_id" => $reservation->subject_id,
+            "subject" => $request->subject,
+            "total_students" => $request->total_students,
+            "register_date" => $reservation->register_date,
+            "reservation_date" => $reservation->reservation_date,
+            "horario_ini" => $reservation->horario_ini,
+            "horario_end" => $reservation->horario_end,
+            "state" => $reservation->state,
+            "request_reason" => $reservation->request_reason,
+            "group_list" => $reservation->group_list,
+            "other_group_list" => $reservation->other_groups
+        ]);
     }
-    $reservation->other_groups = $other_groups;
-    date_default_timezone_set("America/La_Paz");
-    $reservation->register_date = date('Y-m-d H:i:s');
-    $reservation->save();
-    return response()->json([
-        "id" => $reservation->id,
-        "user_id" => $reservation->user_id,
-        "name" => $request->name,
-        "subject_id" => $reservation->subject_id,
-        "subject" => $request->subject,
-        "total_students" => $request->total_students,
-        "register_date" => $reservation->register_date,
-        "reservation_date" => $reservation->reservation_date,
-        "horario_ini" => $reservation->horario_ini,
-        "horario_end" => $reservation->horario_end,
-        "state" => $reservation->state,
-        "request_reason" => $reservation->request_reason,
-        "group_list" => $reservation->group_list,
-        "other_group_list" => $reservation->other_groups
-    ]);
 });
 
 
@@ -159,16 +196,16 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
         $subject_name = Subject::find($elem->subject_id)->name_subject;
         $classroom_name = Classroom::find(1)->name_classroom;
         return array(
-            "id" => $elem->id, 
-            "name" => $user_name, 
+            "id" => $elem->id,
+            "name" => $user_name,
             "subject" => $subject_name,
-            "classroom" => $classroom_name, 
+            "classroom" => $classroom_name,
             "total_students" => $elem->total_students,
             "request_reason" => $elem->request_reason,
             "horario_ini" => $elem->horario_ini,
-            "horario_end" => $elem->horario_fin, 
-            "state" => $elem->state, 
-            "group_list" => $elem->group_list, 
+            "horario_end" => $elem->horario_fin,
+            "state" => $elem->state,
+            "group_list" => $elem->group_list,
             "other_group_list" => $elem->other_groups,
             "reservation_date" => $elem->reservation_date,
             "register_date" => $elem->register_date
@@ -179,7 +216,7 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
 
 Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
     $userbooking = UserBooking::find($userbooking_id);
-    if(isset($userbooking)){
+    if (isset($userbooking)) {
         $user_id = $userbooking->user_id;
         $user_name = User::find($user_id)->name;
         $subject_id = $userbooking->subject_id;
@@ -199,7 +236,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "group_list" => $userbooking->group_list,
             "other_groups" => $userbooking->other_groups
         ]);
-    }else{
+    } else {
         return response()->json([
             "message" => "no existe esta reserva con el id especificado"
         ]);
@@ -207,6 +244,66 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
 });
 
 
+Route::put('reservation/{userbooking_id}', function (Request $request, $userbooking_id) {
+    $reservation = UserBooking::find($userbooking_id);
+    if (isset($reservation)) {
+        if (isset($request->name)) {
+            $user_id = User::where('name', $request->name)->first()->id;
+            $reservation->user_id = $user_id;
+        }
+        if (isset($request->subject)) {
+            $subject_id = Subject::where('name_subject', $request->subject)->first()->id;
+            $reservation->subject_id = $subject_id;
+        }
+        if (isset($request->total_students)) {
+            $reservation->total_students = $request->total_students;
+        }
+        if (isset($request->horario_ini)) {
+            $reservation->horario_ini = $request->horario_ini;
+        }
+        if (isset($request->horario_end)) {
+            $reservation->horario_end = $request->horario_end;
+        }
+        if (isset($request->request_reason)) {
+            $reservation->request_reason = $request->request_reason;
+        }
+        if (isset($request->reservation_date)) {
+            $reservation->reservation_date = $request->reservation_date;
+        }
+        if (isset($request->state)) {
+            $reservation->state = $request->state;
+        }
+        if (isset($request->group_list)) {
+            $group_list = "";
+            for ($i = 0; $i < count($request->group_list); $i++) {
+                if ($i == 0) {
+                    $group_list .= ($request->group_list[$i]);
+                } else {
+                    $group_list .= " " . ($request->group_list[$i]);
+                }
+            }
+            $reservation->group_list = $group_list;
+        }
+        if (isset($request->other_group_list)) {
+            $other_groups = "";
+            for ($i = 0; $i < count($request->other_group_list); $i++) {
+                if ($i == 0) {
+                    $group_list .= ($request->other_group_list[$i]);
+                } else {
+                    $group_list .= " " . ($request->other_group_list[$i]);
+                }
+            }
+            $reservation->other_groups = $other_groups;
+            return response()->json([
+                "message" => "reserva actualizada"
+            ]);
+        }
+    } else {
+        return response()->json([
+            "message" => "no existe reserva con el id especificado"
+        ]);
+    }
+});
 
 
 Route::delete('draft/{userbooking_id}', function ($userbooking_id) {
@@ -238,8 +335,7 @@ Route::post('/login', function (Request $request) {
             "role" => $user->role->name,
             "token" => "no hay token"
         ]);
-    }
-    else{
+    } else {
         return response()->json([
             "message" => "no existe este usuario"
         ]);
