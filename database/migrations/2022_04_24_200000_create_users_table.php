@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->bigInteger('role_id');
             $table->string('name')->unique();
+            $table->boolean("enabled");
             $table->string('password');
             $table->string('email')->unique();
             $table->foreign("role_id")->references('id')->on('roles')->onDelete("cascade");

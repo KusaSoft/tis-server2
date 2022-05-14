@@ -37,8 +37,6 @@ Route::get('subjects/{user_id}', function ($user_id) {
 });
 
 
-
-
 Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', $user_id)->get();
     $user_id = $groups[0]->user_id;
@@ -53,7 +51,6 @@ Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
         return $val->only(['id', 'group', 'user_id', 'name', 'subject']);
     });
 });
-
 
 
 
@@ -197,9 +194,6 @@ Route::post('reservation-request', function (Request $request) {
 });
 
 
-
-
-
 Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
     $user_name = User::find($user_id)->name;
     $reservations = UserBooking::where('user_id', $user_id)
@@ -235,10 +229,12 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
         $subject_id = $userbooking->subject_id;
         $subject_name = Subject::find($subject_id)->name_subject;
         return response()->json([
+            "id" => $userbooking_id,
             "user_id" => $user_id,
-            "name" => $user_name,
+            "user" => $user_name,
             "subject_id" => $subject_id,
             "subject" => $subject_name,
+            "classroon_id" => 1,
             "register_date" => $userbooking->register_date,
             "reservation_date" => $userbooking->reservation_date,
             "total_students" => $userbooking->total_students,
@@ -248,6 +244,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "state" => $userbooking->state,
             "group_list" => $userbooking->group_list,
             "other_groups" => $userbooking->other_groups
+            
         ]);
     } else {
         return response()->json([
@@ -354,8 +351,36 @@ Route::post('/login', function (Request $request) {
         ]);
     }
 });
+// ---------------------------------------------------------------------------------------------
+
+//Devuelve todas las solicitudes enviadas(sent) urgentes, osea hasta maximo una semana
+Route::get('reservations/urgent',function(){
+    //codigo
+});
+
+//Devuelve todas las solicitudes enviadas(sent)
+Route::get('reservations/all',function(){
+    //codigo
+});
+
+//Devuelve datos de todos los usuarios del sistema
+Route::get('users',function(){
+    //codigo
+});
+
+//Recibe datos de un nuevo usuario y los guarda
+Route::post('users',function(Request $request){
+    //codigo
+});
+
+//Actualizar atributo "enabled" de el usuario indicado
+Route::put('users/enable/{user_id}',function(Request $request,$user_id){
+    //codigo
+});
 
 
+
+// ---------------------------------------------------------------------------------------------
 Route::get('test/users', function () {
     return User::all();
 });
