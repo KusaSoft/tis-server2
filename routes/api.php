@@ -8,6 +8,8 @@ use App\Models\Subject;
 use App\Models\Classroom;
 use App\Models\Role;
 use App\Models\UserBooking;
+use Symfony\Component\Translation\Dumper\YamlFileDumper;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -363,16 +365,16 @@ Route::post('/login', function (Request $request) {
 
 //Devuelve todas las solicitudes enviadas(sent) urgentes, osea hasta maximo una semana
 Route::get('reservations/urgent', function () {
-    $reservations = UserBooking::where('state','sent')->get();
-    $reservation = $reservations[0];
-
     date_default_timezone_set("America/La_Paz");
-    $date_now = date('Y-m-d');
-    // return date_diff($date_now,$reservation->reservation_date);
-    return date('Y-m-d');
-    return $reservations;
-    
+    $reservations = UserBooking::where('state','sent')->get();
+    return $reservations->filter(function($res){
+        $d1 = strtotime($res->reservation_date);
+        $datetime_now = strtotime(date('Y-m-d h:i:s'));
+        $diff = ($d1 - $datetime_now) / (24*60*60);
+        return $diff <= 7;
+    });
 });
+
 
 //Devuelve todas las solicitudes enviadas(sent)
 Route::get('reservations', function () {
