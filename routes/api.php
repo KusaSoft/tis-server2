@@ -8,7 +8,9 @@ use App\Models\Subject;
 use App\Models\Classroom;
 use App\Models\Role;
 use App\Models\UserBooking;
+use Illuminate\Database\QueryException;
 use Symfony\Component\Translation\Dumper\YamlFileDumper;
+use Illuminate\Support\Facades\Validator;
 
 /*
 |--------------------------------------------------------------------------
@@ -366,11 +368,11 @@ Route::post('/login', function (Request $request) {
 //Devuelve todas las solicitudes enviadas(sent) urgentes, osea hasta maximo una semana
 Route::get('reservations/urgent', function () {
     date_default_timezone_set("America/La_Paz");
-    $reservations = UserBooking::where('state','sent')->get();
-    return $reservations->filter(function($res){
+    $reservations = UserBooking::where('state', 'sent')->get();
+    return $reservations->filter(function ($res) {
         $d1 = strtotime($res->reservation_date);
         $datetime_now = strtotime(date('Y-m-d h:i:s'));
-        $diff = ($d1 - $datetime_now) / (24*60*60);
+        $diff = ($d1 - $datetime_now) / (24 * 60 * 60);
         return $diff <= 7;
     });
 });
@@ -378,8 +380,8 @@ Route::get('reservations/urgent', function () {
 
 //Devuelve todas las solicitudes enviadas(sent)
 Route::get('reservations', function () {
-    $res_reqs = UserBooking::where('state','sent')->get();
-    return $res_reqs->map(function ($elem){
+    $res_reqs = UserBooking::where('state', 'sent')->get();
+    return $res_reqs->map(function ($elem) {
         $subject_name = Subject::find($elem->subject_id)->name_subject;
         $user_name = User::find($elem->user_id)->name;
         $classroom_name = Classroom::find(1)->name_classroom;
@@ -404,17 +406,43 @@ Route::get('reservations', function () {
 
 //Devuelve datos de todos los usuarios del sistema
 Route::get('users', function () {
-    //codigo
+    $user = User::with('role:id,name')->get();
+    return response()->json($user);
 });
 
 //Recibe datos de un nuevo usuario y los guarda
 Route::post('users', function (Request $request) {
-    //codigo
+    try {
+        $user = new User();
+        $role = $request->role;
+        $user->name = $request->name;
+        $user->enabled = true;
+        $user->password = $request->password;
+        $user->email = $request->email;
+        $role_id = Role::where('name', $role)->first()->id;
+        $user->role_id = $role_id;
+        $user->save();
+        return response()->json([
+            "message" => 'Enviado exitosamente',
+            'successful' => true
+        ]);
+    } catch (QueryException $exc) {
+        return response()->json([
+            "message" => 'Hubo un error con el registro',
+            'successful' => false
+        ]);
+    }
 });
 
 //Actualizar atributo "enabled" de el usuario indicado
-Route::put('users/enable/{user_id}', function (Request $request, $user_id) {
-    //codigo
+Route::put('users/{user_id}', function (Request $request, $user_id) {
+    $user = User::find($user_id);
+    $user->enabled = $request->enabled;   
+    $user->save();
+    return response()->json([
+        "message"=>"Modificado exitosamente",
+        "successful"=>true
+    ]);
 });
 
 
