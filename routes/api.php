@@ -84,7 +84,7 @@ Route::post('reservation-request', function (Request $request) {
     if (isset($request->id)) {
         //actualizamos solicitud de reserva que se especifica
         $res = UserBooking::find($request->id);
-        if(!isset($res)){
+        if (!isset($res)) {
             return response()->json([
                 "message" => "no existe la solicitu de reserva especificada"
             ]);
@@ -244,7 +244,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "state" => $userbooking->state,
             "group_list" => $userbooking->group_list,
             "other_groups" => $userbooking->other_groups
-            
+
         ]);
     } else {
         return response()->json([
@@ -331,50 +331,87 @@ Route::delete('draft/{userbooking_id}', function ($userbooking_id) {
 });
 
 
-
 Route::post('/login', function (Request $request) {
     $username = $request->email;
     $password = $request->password;
     $users = User::where('email', $username)->where('password', $password)->get();
     if (count($users) >= 1) {
         $user = $users[0];
-        return response()->json([
-            "id" => $user->id,
-            "name" => $user->name,
-            "email" => $user->email,
-            "role" => $user->role->name,
-            "token" => "no hay token"
-        ]);
+        if ($user->enabled == true) {
+            return response()->json([
+                "id" => $user->id,
+                "name" => $user->name,
+                "email" => $user->email,
+                "role" => $user->role->name,
+                "token" => "no hay token",
+                "successful" => true
+            ]);
+        } else {
+            return response()->json([
+                "message" => "Usted no esta habilidado para acceder al sistema",
+                "successful" => false
+            ]);
+        }
     } else {
         return response()->json([
-            "message" => "no existe este usuario"
+            "message" => "Credenciales incorrectas",
+            "successful" => false
         ]);
     }
 });
 // ---------------------------------------------------------------------------------------------
 
 //Devuelve todas las solicitudes enviadas(sent) urgentes, osea hasta maximo una semana
-Route::get('reservations/urgent',function(){
-    //codigo
+Route::get('reservations/urgent', function () {
+    $reservations = UserBooking::where('state','sent')->get();
+    $reservation = $reservations[0];
+
+    date_default_timezone_set("America/La_Paz");
+    $date_now = date('Y-m-d');
+    // return date_diff($date_now,$reservation->reservation_date);
+    return date('Y-m-d');
+    return $reservations;
+    
 });
 
 //Devuelve todas las solicitudes enviadas(sent)
-Route::get('reservations/all',function(){
-    //codigo
+Route::get('reservations', function () {
+    $res_reqs = UserBooking::where('state','sent')->get();
+    return $res_reqs->map(function ($elem){
+        $subject_name = Subject::find($elem->subject_id)->name_subject;
+        $user_name = User::find($elem->user_id)->name;
+        $classroom_name = Classroom::find(1)->name_classroom;
+        return array(
+            "id" => $elem->id,
+            "name" => $user_name,
+            "subject" => $subject_name,
+            "subject_id" => $elem->subject_id,
+            "classroom" => $classroom_name,
+            "total_students" => $elem->total_students,
+            "request_reason" => $elem->request_reason,
+            "horario_ini" => $elem->horario_ini,
+            "horario_end" => $elem->horario_fin,
+            "state" => $elem->state,
+            "group_list" => $elem->group_list,
+            "other_group_list" => $elem->other_groups,
+            "reservation_date" => $elem->reservation_date,
+            "register_date" => $elem->register_date
+        );
+    });
 });
 
 //Devuelve datos de todos los usuarios del sistema
-Route::get('users',function(){
+Route::get('users', function () {
     //codigo
 });
 
 //Recibe datos de un nuevo usuario y los guarda
-Route::post('users',function(Request $request){
+Route::post('users', function (Request $request) {
     //codigo
 });
 
 //Actualizar atributo "enabled" de el usuario indicado
-Route::put('users/enable/{user_id}',function(Request $request,$user_id){
+Route::put('users/enable/{user_id}', function (Request $request, $user_id) {
     //codigo
 });
 

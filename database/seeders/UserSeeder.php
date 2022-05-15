@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'role_id' => '1',
-                'name' => 'MontaÃ±o Quiroga Victor Hugo',
+                'name' => 'Montanho Quiroga Victor Hugo',
                 'password' => '189273g',
                 'enabled' => true,
                 'email' => 'victor@gmail.com'
