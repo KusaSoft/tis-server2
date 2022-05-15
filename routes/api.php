@@ -8,6 +8,9 @@ use App\Models\Subject;
 use App\Models\Classroom;
 use App\Models\Role;
 use App\Models\UserBooking;
+
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -364,21 +367,45 @@ Route::get('reservations/all',function(){
 });
 
 //Devuelve datos de todos los usuarios del sistema
-Route::get('users',function(){
-    //codigo
+Route::get('users',function()
+{
+    $user = User::with('role:id,name')->get();
+    return response()->json($user);
 });
 
-//Recibe datos de un nuevo usuario y los guarda
+//Recibe datos de un nuevo usuario y los guarda registrar
+//http://127.0.0.1:8000/api/users
 Route::post('users',function(Request $request){
-    //codigo
-});
+     //codigo      
+     $validator = Validator ::make ($request->all(),[
+        'role_id' => 'required',
+        'name' => 'required',
+        'enabled' => 'required',
+        'email' => 'required',
+        'password' => 'required',
+    ]);
+    if($validator->fails()){
+        return response ()->json (
+        [
+            'message'=>'!Hubo un problema con el registro!',
+        ],400);
+    }
+    //creamos usuario
+    $user = user::create (array_merge(
+        $validator ->validate(),
+        ['password'=> bcrypt($request->password)]
+    ));
+    //devolveremos 
+    return response ()->json([
+        'message'=>'!Usuario registrado exitosamente!',
+        'user'=>$user
+    ],201);
+ });
 
 //Actualizar atributo "enabled" de el usuario indicado
 Route::put('users/enable/{user_id}',function(Request $request,$user_id){
     //codigo
 });
-
-
 
 // ---------------------------------------------------------------------------------------------
 Route::get('test/users', function () {
