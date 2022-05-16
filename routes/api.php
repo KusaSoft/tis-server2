@@ -56,8 +56,6 @@ Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     });
 });
 
-
-
 Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', '!=', $user_id)->get();
     if (count($groups) == 0) {
