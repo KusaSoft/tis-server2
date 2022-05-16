@@ -63,17 +63,9 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
             "message" => "no hay grupos registrados"
         ]);
     }
-    $group_id = $groups[0]->id;
-    $group = $groups[0]->group;
-    $user_id = $groups[0]->user_id;
-    $subject_id = $groups[0]->subject_id;
-    $user_name = User::find($user_id)->name;
     $subject_name = Subject::find($subject_id)->name_subject;
-
-
-    return $groups->map(function ($val) use ($user_id, $user_name, $subject_name) {
-        $val->user_id = $user_id;
-        $val->name = $user_name;
+    return $groups->map(function ($val) use ($subject_name) {
+        $val->name = User::find($val->user_id)->name;
         $val->subject = $subject_name;
         return $val->only(['id', 'group', 'user_id', 'name', 'subject']);
     });
@@ -367,19 +359,23 @@ Route::post('/login', function (Request $request) {
 Route::get('reservations/urgent', function () {
     date_default_timezone_set("America/La_Paz");
     $reservations = UserBooking::where('state', 'sent')->get();
-    return $reservations->filter(function ($res) {
+    $correctReservations = $reservations->filter(function ($res) {
         $d1 = strtotime($res->reservation_date);
         $datetime_now = strtotime(date('Y-m-d h:i:s'));
+        if($d1 < $datetime_now){
+            return false;
+        }
         $diff = ($d1 - $datetime_now) / (24 * 60 * 60);
         return $diff <= 7;
     });
+    return array_values($correctReservations->toArray());
 });
 
 
 //Devuelve todas las solicitudes enviadas(sent)
 Route::get('reservations', function () {
     $res_reqs = UserBooking::where('state', 'sent')->get();
-    return $res_reqs->map(function ($elem) {
+    return array_values($res_reqs->map(function ($elem) {
         $subject_name = Subject::find($elem->subject_id)->name_subject;
         $user_name = User::find($elem->user_id)->name;
         $classroom_name = Classroom::find(1)->name_classroom;
@@ -399,7 +395,7 @@ Route::get('reservations', function () {
             "reservation_date" => $elem->reservation_date,
             "register_date" => $elem->register_date
         );
-    });
+    })->toArray());
 });
 
 //Devuelve datos de todos los usuarios del sistema
