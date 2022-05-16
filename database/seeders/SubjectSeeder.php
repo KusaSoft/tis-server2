@@ -15,23 +15,23 @@ class SubjectSeeder extends Seeder
     public function run()
     {
         $intro = new Subject();
-        $intro->name_subject = "Introduccion a la programación";
+        $intro->name_subject = "Introduccion a la programacion";
         $intro->save();
 
         $elem = new Subject();
-        $elem->name_subject = "Elementos de Programación Y Estructura De Datos"; 
+        $elem->name_subject = "Elementos de Programacion Y Estructura De Datos"; 
         $elem->save();
 
         $metodos = new Subject();
-        $metodos->name_subject = "Metodos Y Tecnicas De Programación "; 
+        $metodos->name_subject = "Metodos Y Tecnicas De Programacion"; 
         $metodos->save();
 
         $inter = new Subject();
-        $inter->name_subject = "Interacción Humano Computador"; 
+        $inter->name_subject = "Interaccion Humano Computador"; 
         $inter->save();
 
         $tall = new Subject();
-        $tall->name_subject = "Taller De Ingeniería De Software"; 
+        $tall->name_subject = "Taller De Ingenieria De Software"; 
         $tall->save();
 
         $talle = new Subject();
@@ -39,15 +39,15 @@ class SubjectSeeder extends Seeder
         $talle->save();
 
         $sist = new Subject();
-        $sist->name_subject = "Sistemas De Información I"; 
+        $sist->name_subject = "Sistemas De Informacion I"; 
         $sist->save();
 
         $sistem = new Subject();
-        $sistem->name_subject = "Sistemas De Información II"; 
+        $sistem->name_subject = "Sistemas De Informacion II"; 
         $sistem->save();
 
         $inge = new Subject();
-        $inge->name_subject = "Ingeniería De Software"; 
+        $inge->name_subject = "Ingenieria De Software"; 
         $inge->save();
 
         $algor = new Subject();
