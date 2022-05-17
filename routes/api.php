@@ -388,7 +388,7 @@ Route::get('reservations', function () {
             "total_students" => $elem->total_students,
             "request_reason" => $elem->request_reason,
             "horario_ini" => $elem->horario_ini,
-            "horario_end" => $elem->horario_fin,
+            "horario_end" => $elem->horario_end,
             "state" => $elem->state,
             "group_list" => $elem->group_list,
             "other_group_list" => $elem->other_groups,
