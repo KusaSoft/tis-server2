@@ -55,8 +55,8 @@ class UserBookingSeeder extends Seeder
                 "horario_ini" => "09:25",
                 "horario_end" => null,
                 "state" => "draft",
-                "group_list" => null,
-                "other_groups"=>null
+                "group_list" => "",
+                "other_groups"=>""
             ],
         ];
         DB::table('user_booking')->insert($data);

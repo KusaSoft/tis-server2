@@ -222,6 +222,36 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
         $user_name = User::find($user_id)->name;
         $subject_id = $userbooking->subject_id;
         $subject_name = Subject::find($subject_id)->name_subject;
+
+        $group_list_str = explode(" ",$userbooking->group_list);
+        $group_list = [];
+        for($i = 0;$i<count($group_list_str);$i++){
+            $group_id = $group_list_str[$i];
+            $group = SubjectUser::find($group_id);
+            $group_num = $group->group;
+            $user = User::find($group->user_id)->name;
+            $group_arr = [
+                "id" => $group_id,
+                "group" => $group_num,
+                "teacher" => $user
+            ];
+            $group_list[$i] = $group_arr;
+        }
+        $other_group_list_str = explode(" ",$userbooking->other_groups);
+        $other_group_list = [];
+        for($i = 0 ;$i<count($other_group_list);$i++){
+            $group_id = $group_list_str[$i];
+            $group = SubjectUser::find($group_id);
+            $group_num = $group->group;
+            $user = User::find($group->user_id)->name;
+            $group_arr = [
+                "id" => $group_id,
+                "group" => $group_num,
+                "teacher" => $user
+            ];
+            $other_group_list[$i] = $group_arr;
+        }
+
         return response()->json([
             "id" => $userbooking_id,
             "user_id" => $user_id,
@@ -236,8 +266,8 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "horario_ini" => $userbooking->horario_ini,
             "horario_end" => $userbooking->horario_end,
             "state" => $userbooking->state,
-            "group_list" => $userbooking->group_list,
-            "other_groups" => $userbooking->other_groups
+            "group_list" => $group_list,
+            "other_groups" => $other_group_list
 
         ]);
     } else {

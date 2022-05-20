@@ -25,8 +25,8 @@ class CreateUserBookingTables extends Migration
             $table->string("horario_end")->nullable();
             $table->string("total_students")->nullable();
             $table->string("state");
-            $table->string("group_list")->nullable();
-            $table->string("other_groups",100)->nullable();
+            $table->string("group_list");
+            $table->string("other_groups",100);
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('subject_id')->references('id')->on('subjects')->onUpdate('cascade')->onDelete('cascade');
