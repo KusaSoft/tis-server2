@@ -238,7 +238,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
         }
         $other_group_list_str = explode(" ",$userbooking->other_groups);
         $other_group_list = [];
-        for($i = 0 ;$i<count($other_group_list);$i++){
+        for($i = 0 ;$i<count($other_group_list_str);$i++){
             $group_id = $group_list_str[$i];
             $group = SubjectUser::find($group_id);
             $group_num = $group->group;
