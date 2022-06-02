@@ -31,7 +31,7 @@ class SubjectSeeder extends Seeder
         $inter->save();
 
         $tall = new Subject();
-        $tall->name_subject = "Taller De Ingenieria De Software"; 
+        $tall->name_subject = "Taller de Ingenieria de Software"; 
         $tall->save();
 
         $talle = new Subject();

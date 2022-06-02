@@ -39,6 +39,17 @@ Route::get('subjects/{user_id}', function ($user_id) {
         return array("id" => $val->id, "subject_name" => $name, "group" => $group);
     });
 });
+Route::post('subjects/',function(Request $request){
+    $subj = null;
+    $subj = Subject::where('name_subject',$request->name_subject)->first();
+    if(!isset($subj)){
+        $newSubject = new Subject();
+        $newSubject->name_subject = $request->name_subject;
+        $newSubject->save();
+    }else{
+
+    }
+});
 
 
 Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
@@ -74,6 +85,7 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
 
 
 Route::post('reservation-request', function (Request $request) {
+    // return $request;
     if (isset($request->id)) {
         //actualizamos solicitud de reserva que se especifica
         $res = UserBooking::find($request->id);
@@ -213,7 +225,6 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
     });
 });
 
-
 Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
     $userbooking = UserBooking::find($userbooking_id);
     if (isset($userbooking)) {
@@ -239,7 +250,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
         $other_group_list_str = explode(" ",$userbooking->other_groups);
         $other_group_list = [];
         for($i = 0 ;$i<count($other_group_list_str);$i++){
-            $group_id = $group_list_str[$i];
+            $group_id = $other_group_list_str[$i];
             $group = SubjectUser::find($group_id);
             $group_num = $group->group;
             $user = User::find($group->user_id)->name;
@@ -250,7 +261,6 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             ];
             $other_group_list[$i] = $group_arr;
         }
-
         return response()->json([
             "id" => $userbooking_id,
             "user_id" => $user_id,
@@ -456,26 +466,6 @@ Route::get('reservations', function () {
         );
     })->toArray());
 });
-// Route::get('groupsid/{subjectuser_id}', function ($subjectuser_id) {
-//     $subjectuser =SubjectUser::find($subjectuser_id);
-//     if(isset($subjectuser)){
-//         $user_id = $subjectuser->user_id;
-//         $user_name = User::find($user_id)->name;
-//         $subject_id = $subjectuser->subject_id;
-//         $subject_name = Subject::find($subject_id)->name_subject;
-//         return response()->json([
-//             "id" => $subjectuser_id,
-//             "groups"=>$subjectuser->group,
-//             "user_id" => $user_id,
-//             "user" => $user_name,
-//             "subject" => $subject_name,
-//         ]);
-//     } else {
-//         return response()->json([
-//             "message" => "no existe este grupo con el id especificado"
-//         ]);
-//     }
-// });
 //Devuelve datos de todos los usuarios del sistema
 Route::get('users', function () {
     $user = User::with('role:id,name')->get();
