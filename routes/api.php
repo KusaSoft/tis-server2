@@ -40,36 +40,6 @@ Route::get('subjects/{user_id}', function ($user_id) {
     });
 });
 
-Route::post('subjects/',function(Request $request){
-    $subj = null;
-    $subj = Subject::where('name_subject',$request->name_subject)->first();
-    if(!isset($subj)){
-        $newSubject = new Subject();
-        $newSubject->name_subject = $request->name_subject;
-        $newSubject->save();
-        return response()->json([
-            "message"=> "Nueva materia registrada con exito"
-        ]);
-    }else{
-        return response()->json([
-            "message" => "Esta materia ya esta registrada"
-        ]);
-    }
-});
-
-Route::delete('subjects/{subject_id}',function($subject_id){
-    $subj = Subject::find($subject_id);
-    if(isset($subj)){
-        $subj->delete();
-        return response()->json([
-            "message"=>"materia eliminada satisfactoriamente"
-        ]);
-    }else{
-        return response()->json([
-            "message"=>"no existe la materia"
-        ]);
-    }
-});
 
 
 
@@ -429,7 +399,6 @@ Route::get('reservations/urgent', function () {
     return array_values($correctReservations->toArray());
 });
 
-
 //Devuelve todas las solicitudes enviadas(sent)
 Route::get('reservations', function () {
     $res_reqs = UserBooking::where('state', 'sent')->get();
@@ -526,19 +495,6 @@ Route::put('users/{user_id}', function (Request $request, $user_id) {
     ]);
 });
 
-Route::post('subject_user',function(Request $request){
-    $su = new SubjectUser();
-    $su->user_id = User::where('name',$request->teacher)->first()->user_id;
-    $su->subject_id = Subject::where('name_subject',$request->subject)->first()->subject_id;
-    $su->group = $request->number_group;
-
-    return response()->json([
-        "message"=>"El grupo se registro exitosamente",
-        "successful" => true
-    ]);
-
-    $su->save();
-});
 
 Route::put('reservations',function(Request $request){
     $id = $request->id;
@@ -546,14 +502,106 @@ Route::put('reservations',function(Request $request){
     $res->state = $request->state;
     $res->rejection_reason = $request->rejection_reason;
     $res->assigned_classrooms = $request->assigned_classrooms;
+    $res->save();
     return response()->json([
         "message" => "...",
         "successful" => true
     ]);
 });
 
+//----------------------------------------------------------------------------------
 
+Route::post('subjects/',function(Request $request){
+    $subj = null;
+    $subj = Subject::where('name_subject',$request->name_subject)->first();
+    if(!isset($subj)){
+        $newSubject = new Subject();
+        $newSubject->name_subject = $request->name_subject;
+        $newSubject->save();
+        return response()->json([
+            "message"=> "Nueva materia registrada con exito"
+        ]);
+    }else{
+        return response()->json([
+            "message" => "Esta materia ya esta registrada"
+        ]);
+    }
+});
 
+Route::delete('subjects/{subject_id}',function($subject_id){
+    $subj = Subject::find($subject_id);
+    if(isset($subj)){
+        $subj->delete();
+        return response()->json([
+            "message"=>"materia eliminada satisfactoriamente"
+        ]);
+    }else{
+        return response()->json([
+            "message"=>"no existe la materia"
+        ]);
+    }
+});
+
+Route::get('subject_user',function(){
+    $groups = SubjectUser::all();
+    return $groups->map(function($elem){
+        $user_id = $elem->user_id;
+        $subject_id = $elem->subject_id;
+        $teacher = User::find($user_id)->name;
+        $subject = Subject::find($subject_id)->name_subject;
+        return array(
+            "id" => $elem->id,
+            "subject" => $subject,
+            "teacher" => $teacher,
+            "number_group" => $elem->group
+        );
+    });
+    return SubjectUser::all();
+});
+
+Route::post('subject_user',function(Request $request){
+    $su = new SubjectUser();
+    $su->user_id = User::where('name',$request->teacher)->first()->id;
+    $su->subject_id = Subject::where('name_subject',$request->subject)->first()->id;
+    $su->group = $request->number_group;
+    $su->save();
+    return response()->json([
+        "message"=>"El grupo se registro exitosamente",
+        "successful" => true
+    ]);
+});
+
+Route::delete('subject_user/{subject_user_id}',function($subject_user_id){
+    $subj = SubjectUser::find($subject_user_id);
+    $message = "";
+    $success = false;
+    if(isset($subj)){
+        $success = true;
+        $message = "El grupo se elimino exitosamente";
+        $subj->delete();
+    }else{
+        $message = "No existe el grupo";
+    }
+    return response()->json([
+        "message" => $message,
+        "successful" => $success
+    ]);
+});
+
+Route::get('classrooms/{userbooking_id}',function(){
+});
+
+Route::get('classroom/{classroom_id}',function($classroom_id){
+    $classroom = Classroom::find($classroom_id);
+    return response()->json([
+        "id" => 1,
+        "name_classrooms" => $classroom->name_classroom,
+        "building" => $classroom->building,
+        "floor" => $classroom->floor,
+        "amount" => $classroom->total_students
+    ]);
+    return $classroom;
+});
 
 
 
