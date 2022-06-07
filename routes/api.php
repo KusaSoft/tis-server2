@@ -217,9 +217,9 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
         $subject_id = $userbooking->subject_id;
         $subject_name = Subject::find($subject_id)->name_subject;
 
-        $group_list_str = explode(" ",$userbooking->group_list);
+        $group_list_str = explode(" ", $userbooking->group_list);
         $group_list = [];
-        for($i = 0;$i<count($group_list_str);$i++){
+        for ($i = 0; $i < count($group_list_str); $i++) {
             $group_id = $group_list_str[$i];
             $group = SubjectUser::find($group_id);
             $group_num = $group->group;
@@ -231,19 +231,21 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             ];
             $group_list[$i] = $group_arr;
         }
-        $other_group_list_str = explode(" ",$userbooking->other_groups);
+        $other_group_list_str = preg_split("/\s+/", $userbooking->other_groups);
         $other_group_list = [];
-        for($i = 0 ;$i<count($other_group_list_str);$i++){
-            $group_id = $other_group_list_str[$i];
-            $group = SubjectUser::find($group_id);
-            $group_num = $group->group;
-            $user = User::find($group->user_id)->name;
-            $group_arr = [
-                "id" => $group_id,
-                "group" => $group_num,
-                "teacher" => $user
-            ];
-            $other_group_list[$i] = $group_arr;
+        if (strlen($userbooking->other_groups) > 0) {
+            for ($i = 0; $i < count($other_group_list_str); $i++) {
+                $group_id = $other_group_list_str[$i];
+                $group = SubjectUser::find($group_id);
+                $group_num = $group->group;
+                $user = User::find($group->user_id)->name;
+                $group_arr = [
+                    "id" => $group_id,
+                    "group" => $group_num,
+                    "teacher" => $user
+                ];
+                $other_group_list[$i] = $group_arr;
+            }
         }
         return response()->json([
             "id" => $userbooking_id,
@@ -385,7 +387,7 @@ Route::get('reservations/urgent', function () {
     $correctReservations = $reservations->filter(function ($res) {
         $d1 = strtotime($res->reservation_date);
         $datetime_now = strtotime(date('Y-m-d h:i:s'));
-        if($d1 < $datetime_now){
+        if ($d1 < $datetime_now) {
             return false;
         }
         $diff = ($d1 - $datetime_now) / (24 * 60 * 60);
@@ -403,9 +405,9 @@ Route::get('reservations', function () {
         $user_name = User::find($elem->user_id)->name;
         $classroom_name = Classroom::find(1)->name_classroom;
 
-        $group_list_str = explode(" ",$elem->group_list);
+        $group_list_str = explode(" ", $elem->group_list);
         $group_list = [];
-        for($i = 0;$i<count($group_list_str);$i++){
+        for ($i = 0; $i < count($group_list_str); $i++) {
             $group_id = $group_list_str[$i];
             $group = SubjectUser::find($group_id);
             $group_num = $group->group;
@@ -417,9 +419,9 @@ Route::get('reservations', function () {
             ];
             $group_list[$i] = $group_arr;
         }
-        $other_group_list_str = explode(" ",$elem->other_groups);
+        $other_group_list_str = explode(" ", $elem->other_groups);
         $other_group_list = [];
-        for($i = 0 ;$i<count($other_group_list_str);$i++){
+        for ($i = 0; $i < count($other_group_list_str); $i++) {
             $group_id = $other_group_list_str[$i];
             $group = SubjectUser::find($group_id);
             $group_num = $group->group;
@@ -482,11 +484,11 @@ Route::post('users', function (Request $request) {
 //Actualizar atributo "enabled" de el usuario indicado
 Route::put('users/{user_id}', function (Request $request, $user_id) {
     $user = User::find($user_id);
-    $user->enabled = $request->enabled;   
+    $user->enabled = $request->enabled;
     $user->save();
     return response()->json([
-        "message"=>"Modificado exitosamente",
-        "successful"=>true
+        "message" => "Modificado exitosamente",
+        "successful" => true
     ]);
 });
 
@@ -494,40 +496,40 @@ Route::put('users/{user_id}', function (Request $request, $user_id) {
 
 //----------------------------------------------------------------------------------
 
-Route::post('subjects/',function(Request $request){
+Route::post('subjects/', function (Request $request) {
     $subj = null;
-    $subj = Subject::where('name_subject',$request->name_subject)->first();
-    if(!isset($subj)){
+    $subj = Subject::where('name_subject', $request->name_subject)->first();
+    if (!isset($subj)) {
         $newSubject = new Subject();
         $newSubject->name_subject = $request->name_subject;
         $newSubject->save();
         return response()->json([
-            "message"=> "Nueva materia registrada con exito"
+            "message" => "Nueva materia registrada con exito"
         ]);
-    }else{
+    } else {
         return response()->json([
             "message" => "Esta materia ya esta registrada"
         ]);
     }
 });
 
-Route::delete('subjects/{subject_id}',function($subject_id){
+Route::delete('subjects/{subject_id}', function ($subject_id) {
     $subj = Subject::find($subject_id);
-    if(isset($subj)){
+    if (isset($subj)) {
         $subj->delete();
         return response()->json([
-            "message"=>"materia eliminada satisfactoriamente"
+            "message" => "materia eliminada satisfactoriamente"
         ]);
-    }else{
+    } else {
         return response()->json([
-            "message"=>"no existe la materia"
+            "message" => "no existe la materia"
         ]);
     }
 });
 
-Route::get('subject_user',function(){
+Route::get('subject_user', function () {
     $groups = SubjectUser::all();
-    return $groups->map(function($elem){
+    return $groups->map(function ($elem) {
         $user_id = $elem->user_id;
         $subject_id = $elem->subject_id;
         $teacher = User::find($user_id)->name;
@@ -542,27 +544,27 @@ Route::get('subject_user',function(){
     return SubjectUser::all();
 });
 
-Route::post('subject_user',function(Request $request){
+Route::post('subject_user', function (Request $request) {
     $su = new SubjectUser();
-    $su->user_id = User::where('name',$request->teacher)->first()->id;
-    $su->subject_id = Subject::where('name_subject',$request->subject)->first()->id;
+    $su->user_id = User::where('name', $request->teacher)->first()->id;
+    $su->subject_id = Subject::where('name_subject', $request->subject)->first()->id;
     $su->group = $request->number_group;
     $su->save();
     return response()->json([
-        "message"=>"El grupo se registro exitosamente",
+        "message" => "El grupo se registro exitosamente",
         "successful" => true
     ]);
 });
 
-Route::delete('subject_user/{subject_user_id}',function($subject_user_id){
+Route::delete('subject_user/{subject_user_id}', function ($subject_user_id) {
     $subj = SubjectUser::find($subject_user_id);
     $message = "";
     $success = false;
-    if(isset($subj)){
+    if (isset($subj)) {
         $success = true;
         $message = "El grupo se elimino exitosamente";
         $subj->delete();
-    }else{
+    } else {
         $message = "No existe el grupo";
     }
     return response()->json([
@@ -571,10 +573,10 @@ Route::delete('subject_user/{subject_user_id}',function($subject_user_id){
     ]);
 });
 
-Route::get('classrooms/{userbooking_id}',function(){
+Route::get('classrooms/{userbooking_id}', function () {
 });
 
-Route::get('classroom/{classroom_id}',function($classroom_id){
+Route::get('classroom/{classroom_id}', function ($classroom_id) {
     $classroom = Classroom::find($classroom_id);
     return response()->json([
         "id" => 1,
@@ -586,7 +588,7 @@ Route::get('classroom/{classroom_id}',function($classroom_id){
     return $classroom;
 });
 
-Route::put('reservations',function(Request $request){
+Route::put('reservations', function (Request $request) {
     $id = $request->id;
     $res = UserBooking::find($id);
     $res->state = $request->state;
@@ -599,9 +601,9 @@ Route::put('reservations',function(Request $request){
     ]);
 });
 
-Route::get('reservations/{state}',function($state){
-    $user_bookings = UserBooking::where('state',$state)->get();
-    return $user_bookings->map(function($elem){
+Route::get('reservations/{state}', function ($state) {
+    $user_bookings = UserBooking::where('state', $state)->get();
+    return $user_bookings->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
         $subject = Subject::find($elem->subject_id)->name_subject;
         return array(
@@ -626,20 +628,20 @@ Route::get('reservations/{state}',function($state){
     });
 });
 
-Route::get('roles/users/{role}',function($role){
-    $role = Role::where('name',$role)->first();
-    if(!isset($role)){
+Route::get('roles/users/{role}', function ($role) {
+    $role = Role::where('name', $role)->first();
+    if (!isset($role)) {
         return response()->json([
             "message" => "El rol dado no existe"
         ]);
     }
     $role_id = $role->id;
-    $users = User::where('role_id',$role_id)->get();
-    return $users->map(function($elem) use($role){
+    $users = User::where('role_id', $role_id)->get();
+    return $users->map(function ($elem) use ($role) {
         return array(
-            "id"=>$elem->id,
-            "name"=>$elem->name,
-            "rol"=>$role->name
+            "id" => $elem->id,
+            "name" => $elem->name,
+            "rol" => $role->name
         );
     });
 });
@@ -667,4 +669,3 @@ Route::get('test/user_booking', function () {
 Route::get('test/roles', function () {
     return Role::all();
 });
-
