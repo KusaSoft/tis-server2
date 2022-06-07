@@ -174,7 +174,7 @@ Route::post('reservation-request', function (Request $request) {
             "name" => $request->name,
             "subject_id" => $reservation->subject_id,
             "subject" => $request->subject,
-            "total_students" => $request->total_students,
+            "total_students" => $reservation->total_students,
             "register_date" => $reservation->register_date,
             "reservation_date" => $reservation->reservation_date,
             "horario_ini" => $reservation->horario_ini,
@@ -671,3 +671,4 @@ Route::get('test/user_booking', function () {
 Route::get('test/roles', function () {
     return Role::all();
 });
+
