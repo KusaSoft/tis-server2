@@ -644,7 +644,7 @@ Route::get('roles/users/{role}',function($role){
         return array(
             "id"=>$elem->id,
             "name"=>$elem->name,
-            "rol"=>$role
+            "rol"=>$role->name
         );
     });
 });
