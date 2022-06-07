@@ -496,18 +496,6 @@ Route::put('users/{user_id}', function (Request $request, $user_id) {
 });
 
 
-Route::put('reservations',function(Request $request){
-    $id = $request->id;
-    $res = UserBooking::find($id);
-    $res->state = $request->state;
-    $res->rejection_reason = $request->rejection_reason;
-    $res->assigned_classrooms = $request->assigned_classrooms;
-    $res->save();
-    return response()->json([
-        "message" => "...",
-        "successful" => true
-    ]);
-});
 
 //----------------------------------------------------------------------------------
 
@@ -602,6 +590,49 @@ Route::get('classroom/{classroom_id}',function($classroom_id){
     ]);
     return $classroom;
 });
+
+Route::put('reservations',function(Request $request){
+    $id = $request->id;
+    $res = UserBooking::find($id);
+    $res->state = $request->state;
+    $res->rejection_reason = $request->rejection_reason;
+    $res->assigned_classrooms = $request->assigned_classrooms;
+    $res->save();
+    return response()->json([
+        "message" => "...",
+        "successful" => true
+    ]);
+});
+
+Route::get('reservations/{state}',function($state){
+    $user_bookings = UserBooking::where('state',$state)->get();
+    return $user_bookings->map(function($elem){
+        $user = User::find($elem->user_id)->name;
+        $subject = Subject::find($elem->subject_id)->name_subject;
+        return array(
+            "id" => $elem->id,
+            "user_id" => $elem->user_id,
+            "user" => $user,
+            "subject_id" => $elem->subject_id,
+            "subject" => $subject,
+            "classroom_id" => $elem->classroom_id,
+            "register_date" => $elem->register_date,
+            "reservation_date" => $elem->reservation_date,
+            "total_students" => $elem->total_students,
+            "request_reason" => $elem->request_reason,
+            "horario_ini" => $elem->horario_ini,
+            "horario_end" => $elem->horario_end,
+            "state" => $elem->state,
+            "group_list" => $elem->group_list,
+            "other_groups" => $elem->other_groups,
+            "rejection_reason" => $elem->rejection_reason,
+            "assigned_classrooms" => $elem->assigned_classrooms
+        );
+    });
+});
+
+
+
 
 
 
