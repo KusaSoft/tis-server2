@@ -40,10 +40,6 @@ Route::get('subjects/{user_id}', function ($user_id) {
     });
 });
 
-
-
-
-
 Route::get('groups/{subject_id}/{user_id}', function ($subject_id, $user_id) {
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', $user_id)->get();
     $user_id = $groups[0]->user_id;

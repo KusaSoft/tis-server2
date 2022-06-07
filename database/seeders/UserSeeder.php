@@ -16,6 +16,11 @@ class UserSeeder extends Seeder
     public function run()
     {
         $data = [
+
+        ];
+        DB::table('users')->insert($data);
+
+        $data = [
             [
                 'role_id' => '1',
                 'name' => 'Blanco Coca Leticia',
