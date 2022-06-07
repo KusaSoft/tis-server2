@@ -89,7 +89,7 @@ Route::post('reservation-request', function (Request $request) {
         $res->horario_end = $request->horario_end;
         $res->request_reason = $request->request_reason;
         $res->reservation_date = $request->reservation_date;
-        $res->total_students = $res->total_students;
+        $res->total_students = $request->total_students;
         $res->state = $request->state;
         $group_list = "";
         $groups = $request->group_list;
