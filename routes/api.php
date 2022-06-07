@@ -425,7 +425,7 @@ Route::get('reservations', function () {
         $other_group_list_str = explode(" ",$elem->other_groups);
         $other_group_list = [];
         for($i = 0 ;$i<count($other_group_list_str);$i++){
-            $group_id = $group_list_str[$i];
+            $group_id = $other_group_list_str[$i];
             $group = SubjectUser::find($group_id);
             $group_num = $group->group;
             $user = User::find($group->user_id)->name;
