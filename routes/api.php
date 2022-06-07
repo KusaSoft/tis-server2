@@ -75,7 +75,7 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
 });
 
 Route::post('reservation-request', function (Request $request) {
-    // return $request;
+    return $request;
     if (isset($request->id)) {
         //actualizamos solicitud de reserva que se especifica
         $res = UserBooking::find($request->id);
