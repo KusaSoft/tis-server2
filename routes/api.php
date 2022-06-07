@@ -631,6 +631,23 @@ Route::get('reservations/{state}',function($state){
     });
 });
 
+Route::get('roles/users/{role}',function($role){
+    $role = Role::where('name',$role)->first();
+    if(!isset($role)){
+        return response()->json([
+            "message" => "El rol dado no existe"
+        ]);
+    }
+    $role_id = $role->id;
+    $users = User::where('role_id',$role_id)->get();
+    return $users->map(function($elem) use($role){
+        return array(
+            "id"=>$elem->id,
+            "name"=>$elem->name,
+            "rol"=>$role
+        );
+    });
+});
 
 
 
