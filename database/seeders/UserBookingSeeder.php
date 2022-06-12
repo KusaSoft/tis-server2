@@ -58,6 +58,48 @@ class UserBookingSeeder extends Seeder
                 "group_list" => null,
                 "other_groups"=>null
             ],
+            [//datos de prueva
+                "user_id" => 2,
+                "subject_id" => 1,
+                "classroom_id" => 3,
+                "total_students" => "100",
+                "register_date" => '2022-04-15 00:00:00',
+                "reservation_date" => '2022-04-15',
+                "request_reason" => 'Primer parcial de introduccion',
+                "horario_ini" => "12:45",
+                "horario_end" => "14:15",
+                "state" => "assigned",
+                "group_list" => "1 2",
+                "other_groups" => "3"
+            ],
+            [
+                "user_id" => 2,
+                "subject_id" => 2,
+                "classroom_id" => 3,
+                "total_students" => "100",
+                "register_date" => '2022-04-15 00:00:00',
+                "reservation_date" => '2022-04-15',
+                "request_reason" => 'Primer parcial de introduccion',
+                "horario_ini" => "12:45",
+                "horario_end" => "14:15",
+                "state" => "rejected",
+                "group_list" => "1 2",
+                "other_groups" => "3"
+            ],
+            [
+                "user_id" => 2,
+                "subject_id" => 1,
+                "classroom_id" => 3,
+                "total_students" => "100",
+                "register_date" => '2022-04-15 00:00:00',
+                "reservation_date" => '2022-04-15',
+                "request_reason" => 'Primer parcial de introduccion',
+                "horario_ini" => "12:45",
+                "horario_end" => "14:15",
+                "state" => "urgent",
+                "group_list" => "1 2",
+                "other_groups" => "3"
+            ],
         ];
         DB::table('user_booking')->insert($data);
     }

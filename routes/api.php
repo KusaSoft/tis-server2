@@ -97,7 +97,7 @@ Route::post('reservation-request', function (Request $request) {
             if ($i == 0) {
                 $group_list .= $groups[$i];
             } else {
-                $group_list .= " " . $groups[$i];
+                $group_list .= -" " . $groups[$i];
             }
         }
         $res->group_list = $group_list;
@@ -609,6 +609,119 @@ Route::get('classroom/{classroom_id}', function ($classroom_id) {
             "message" => "al aula no exite"
         ]);
     }
+});
+//13->
+Route::get('request/state',function(Request $request){
+    $res_reqs = UserBooking::where('state', 'assigned')
+                           ->orWhere('state', 'rejected')
+                           ->orWhere('state', 'urgent')->get();
+    
+    return array_values($res_reqs->map(function ($elem) {
+        $subject_name = Subject::find($elem->subject_id)->name_subject;
+        $user_name = User::find($elem->user_id)->name;
+        $classroom_name = Classroom::find(1)->name_classroom;
+
+        $group_list_str = explode(" ",$elem->group_list);
+        $group_list = [];
+        for($i = 0;$i<count($group_list_str);$i++){
+            $group_id = $group_list_str[$i];
+            $group = SubjectUser::find($group_id);
+            $group_num = $group->group;
+            $user = User::find($group->user_id)->name;
+            $group_arr = [
+                "id" => $group_id,
+                "group" => $group_num,
+                "teacher" => $user
+            ];
+            $group_list[$i] = $group_arr;
+        }
+        $other_group_list_str = explode(" ",$elem->other_groups);
+        $other_group_list = [];
+        for($i = 0 ;$i<count($other_group_list);$i++){
+            $group_id = $group_list_str[$i];
+            $group = SubjectUser::find($group_id);
+            $group_num = $group->group;
+            $user = User::find($group->user_id)->name;
+            $group_arr = [
+                "id" => $group_id,
+                "group" => $group_num,
+                "teacher" => $user
+            ];
+            $other_group_list[$i] = $group_arr;
+        }
+        return array(
+            "id" => $elem->id,
+            "name" => $user_name,
+            "subject" => $subject_name,
+            "subject_id" => $elem->subject_id,
+            "classroom" => $classroom_name,
+            "total_students" => $elem->total_students,
+            "request_reason" => $elem->request_reason,
+            "horario_ini" => $elem->horario_ini,
+            "horario_end" => $elem->horario_end,
+            "state" => $elem->state,
+            "group_list" => $group_list,
+            "other_group_list" => $other_group_list,
+            "reservation_date" => $elem->reservation_date,
+            "register_date" => $elem->register_date
+        );
+    })->toArray());
+});   
+//   15.Obtener usuarios por tipo de rol 
+Route::get('request/user/{name}', function($name){
+
+     if ($name === 'docente'){
+        $user = User::with('role:id,name')->get();
+        
+        return response()->json($user);  
+    }
+
+});
+
+
+Route::get('request2/user/{name}', function($name){
+if ($name === 'docente'){
+    $user = User::all();
+        return array_values ($user->map(function($elem){       
+        $role_name = Role::find($elem->role_id)->name;
+           if($role_name =='docente' ){ 
+            if($role_name)
+             return array(
+                 "id" => $elem->id,
+                 "name" => $elem->name,
+                 "role"=>$role_name
+             );     
+           
+        }
+        })->toArray());
+    
+    }if ($name === 'operador'){
+        $user = User::all();
+            return array_filter($user->map(function($elem){
+            $role_name = Role::find($elem->role_id)->name;
+               if($role_name == 'operador'){
+                
+                return array(
+                "id" => $elem->id,
+                "name" => $elem->name,
+                "role"=>$role_name
+                 ); 
+                
+              }
+            })->toArray());
+        }if ($name === 'administrador'){
+            $user = User::all();
+                return array_filter($user->map(function($elem){
+                $role_name = Role::find($elem->role_id)->name;
+                   if($role_name == 'administrador')
+                    return array(
+                    "id" => $elem->id,
+                    "name" => $elem->name,
+                    "role"=>$role_name
+                     ); 
+                       
+                })->toArray());
+            }
 });
 
 // ---------------------------------------------------------------------------------------------
