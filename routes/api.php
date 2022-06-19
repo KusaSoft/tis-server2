@@ -404,34 +404,37 @@ Route::get('reservations', function () {
         $subject_name = Subject::find($elem->subject_id)->name_subject;
         $user_name = User::find($elem->user_id)->name;
         $classroom_name = Classroom::find(1)->name_classroom;
-
         $group_list_str = explode(" ", $elem->group_list);
         $group_list = [];
-        for ($i = 0; $i < count($group_list_str); $i++) {
-            $group_id = $group_list_str[$i];
-            $group = SubjectUser::find($group_id);
-            $group_num = $group->group;
-            $user = User::find($group->user_id)->name;
-            $group_arr = [
-                "id" => $group_id,
-                "group" => $group_num,
-                "teacher" => $user
-            ];
-            $group_list[$i] = $group_arr;
+        if (strlen($elem->group_list) > 0) {
+            for ($i = 0; $i < count($group_list_str); $i++) {
+                $group_id = $group_list_str[$i];
+                $group = SubjectUser::find($group_id);
+                $group_num = $group->group;
+                $user = User::find($group->user_id)->name;
+                $group_arr = [
+                    "id" => $group_id,
+                    "group" => $group_num,
+                    "teacher" => $user
+                ];
+                $group_list[$i] = $group_arr;
+            }
         }
         $other_group_list_str = explode(" ", $elem->other_groups);
         $other_group_list = [];
-        for ($i = 0; $i < count($other_group_list_str); $i++) {
-            $group_id = $other_group_list_str[$i];
-            $group = SubjectUser::find($group_id);
-            $group_num = $group->group;
-            $user = User::find($group->user_id)->name;
-            $group_arr = [
-                "id" => $group_id,
-                "group" => $group_num,
-                "teacher" => $user
-            ];
-            $other_group_list[$i] = $group_arr;
+        if (strlen($elem->other_groups)) {
+            for ($i = 0; $i < count($other_group_list_str); $i++) {
+                $group_id = $other_group_list_str[$i];
+                $group = SubjectUser::find($group_id);
+                $group_num = $group->group;
+                $user = User::find($group->user_id)->name;
+                $group_arr = [
+                    "id" => $group_id,
+                    "group" => $group_num,
+                    "teacher" => $user
+                ];
+                $other_group_list[$i] = $group_arr;
+            }
         }
         return array(
             "id" => $elem->id,
@@ -573,7 +576,17 @@ Route::delete('subject_user/{subject_user_id}', function ($subject_user_id) {
     ]);
 });
 
-Route::get('classrooms/{userbooking_id}', function () {
+Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
+    $reservation = UserBooking::find($userbooking_id);
+    $classrooms = Classroom::all(['id']);
+    $day = $reservation->reservation_date;
+    $hour_ini = $reservation->horario_ini;
+    $hour_end = $reservation->horario_end;
+
+    $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
+    foreach ($reservations as $res) {
+    }
+    return var_dump($reservations);
 });
 
 Route::get('classroom/{classroom_id}', function ($classroom_id) {
@@ -606,6 +619,26 @@ Route::get('reservations/{state}', function ($state) {
     return $user_bookings->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
         $subject = Subject::find($elem->subject_id)->name_subject;
+        $assigned_groups = [];
+        $assigned_groups_str  = explode(" ", $elem->assigned_groups);
+        if (strlen($elem->assigned_groups)) {
+            for ($i = 0; $i < count($assigned_groups_str); $i++) {
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $edifice = $classroom->edifice;
+                $floor = $classroom->floor;
+                $amount = $classroom->total_students;
+                $classroom_arr = [
+                    "id" => $classroom_id,
+                    "name_classroom" => $classroom_name,
+                    "edifice" => $edifice,
+                    "floor" => $floor,
+                    "amount" => $amount
+                ];
+                $assigned_groups[$i] = $classroom_arr;
+            }
+        }
         return array(
             "id" => $elem->id,
             "user_id" => $elem->user_id,
@@ -623,7 +656,7 @@ Route::get('reservations/{state}', function ($state) {
             "group_list" => $elem->group_list,
             "other_groups" => $elem->other_groups,
             "rejection_reason" => $elem->rejection_reason,
-            "assigned_classrooms" => $elem->assigned_classrooms
+            "assigned_classrooms" => $assigned_groups
         );
     });
 });
@@ -645,7 +678,6 @@ Route::get('roles/users/{role}', function ($role) {
         );
     });
 });
-
 
 
 
