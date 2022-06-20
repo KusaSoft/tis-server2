@@ -216,7 +216,6 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
         $user_name = User::find($user_id)->name;
         $subject_id = $userbooking->subject_id;
         $subject_name = Subject::find($subject_id)->name_subject;
-
         $group_list_str = explode(" ", $userbooking->group_list);
         $group_list = [];
         for ($i = 0; $i < count($group_list_str); $i++) {
@@ -247,6 +246,26 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
                 $other_group_list[$i] = $group_arr;
             }
         }
+        $assigned_groups_str = preg_split("/\s+/",$userbooking->assigned_groups);
+        $assigned_groups = [];
+        if(strlen($userbooking->assigned_groups) > 0){
+            for($i = 0; $i < count($assigned_groups_str); $i++){
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $edifice = $classroom->edifice;
+                $floor = $classroom->floor;
+                $amount = $classroom->total_students;
+                $classroom_arr = [
+                    "id" => $classroom_id,
+                    "name_classroom" => $classroom_name,
+                    "edifice" => $edifice,
+                    "floor" => $floor,
+                    "amount" => $amount
+                ];
+                $assigned_groups[$i] = $classroom_arr;
+            }
+        }
         return response()->json([
             "id" => $userbooking_id,
             "user_id" => $user_id,
@@ -258,12 +277,12 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "reservation_date" => $userbooking->reservation_date,
             "total_students" => $userbooking->total_students,
             "request_reason" => $userbooking->request_reason,
+            "rejection_reason" => $userbooking->rejection_reason,
             "horario_ini" => $userbooking->horario_ini,
             "horario_end" => $userbooking->horario_end,
             "state" => $userbooking->state,
             "group_list" => $group_list,
             "other_groups" => $other_group_list
-
         ]);
     } else {
         return response()->json([
