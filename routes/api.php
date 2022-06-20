@@ -679,6 +679,165 @@ Route::get('roles/users/{role}', function ($role) {
     });
 });
 
+// ---------------------------------------------------------------------------------------------
+
+Route::get('reservations/assigned/{user_id}', function ($user_id) {
+    $reservations = UserBooking::where('user_id', $user_id)->where('state', 'assigned')->get();
+    return $reservations->map(function ($elem) {
+        $user = User::find($elem->user_id)->name;
+        $subject = Subject::find($elem->subject_id)->name_subject;
+        $assigned_groups = [];
+        $assigned_groups_str  = explode(" ", $elem->assigned_groups);
+        if (strlen($elem->assigned_groups)) {
+            for ($i = 0; $i < count($assigned_groups_str); $i++) {
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $edifice = $classroom->edifice;
+                $floor = $classroom->floor;
+                $amount = $classroom->total_students;
+                $classroom_arr = [
+                    "id" => $classroom_id,
+                    "name_classroom" => $classroom_name,
+                    "edifice" => $edifice,
+                    "floor" => $floor,
+                    "amount" => $amount
+                ];
+                $assigned_groups[$i] = $classroom_arr;
+            }
+        }
+        return array(
+            "id" => $elem->id,
+            "user_id" => $elem->user_id,
+            "user" => $user,
+            "subject_id" => $elem->subject_id,
+            "subject" => $subject,
+            "classroom_id" => $elem->classroom_id,
+            "register_date" => $elem->register_date,
+            "reservation_date" => $elem->reservation_date,
+            "total_students" => $elem->total_students,
+            "request_reason" => $elem->request_reason,
+            "horario_ini" => $elem->horario_ini,
+            "horario_end" => $elem->horario_end,
+            "state" => $elem->state,
+            "group_list" => $elem->group_list,
+            "other_groups" => $elem->other_groups,
+            "rejection_reason" => $elem->rejection_reason,
+            "assigned_classrooms" => $assigned_groups
+        );
+    });
+});
+
+Route::get('reservations/rejected/{user_id}',function($user_id){
+    $reservations = UserBooking::where('user_id', $user_id)->where('state', 'rejected')->get();
+    return $reservations->map(function ($elem) {
+        $user = User::find($elem->user_id)->name;
+        $subject = Subject::find($elem->subject_id)->name_subject;
+        $assigned_groups = [];
+        $assigned_groups_str  = explode(" ", $elem->assigned_groups);
+        if (strlen($elem->assigned_groups)) {
+            for ($i = 0; $i < count($assigned_groups_str); $i++) {
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $edifice = $classroom->edifice;
+                $floor = $classroom->floor;
+                $amount = $classroom->total_students;
+                $classroom_arr = [
+                    "id" => $classroom_id,
+                    "name_classroom" => $classroom_name,
+                    "edifice" => $edifice,
+                    "floor" => $floor,
+                    "amount" => $amount
+                ];
+                $assigned_groups[$i] = $classroom_arr;
+            }
+        }
+        return array(
+            "id" => $elem->id,
+            "user_id" => $elem->user_id,
+            "user" => $user,
+            "subject_id" => $elem->subject_id,
+            "subject" => $subject,
+            "classroom_id" => $elem->classroom_id,
+            "register_date" => $elem->register_date,
+            "reservation_date" => $elem->reservation_date,
+            "total_students" => $elem->total_students,
+            "request_reason" => $elem->request_reason,
+            "horario_ini" => $elem->horario_ini,
+            "horario_end" => $elem->horario_end,
+            "state" => $elem->state,
+            "group_list" => $elem->group_list,
+            "other_groups" => $elem->other_groups,
+            "rejection_reason" => $elem->rejection_reason,
+            "assigned_classrooms" => $assigned_groups
+        );
+    });
+});
+
+Route::get('notifications/{user_id}',function($user_id){
+    $reservations = UserBooking::where('user_id', $user_id)->where(function($q){
+        $q->where('state','assigned')->orWhere('state','rejected');
+    })->get();
+    return $reservations->map(function ($elem) {
+        $user = User::find($elem->user_id)->name;
+        $subject = Subject::find($elem->subject_id)->name_subject;
+        $assigned_groups = [];
+        $assigned_groups_str  = explode(" ", $elem->assigned_groups);
+        $classrooms = "Se asigno las aulas: ";
+        if (strlen($elem->assigned_groups)) {
+            for ($i = 0; $i < count($assigned_groups_str); $i++) {
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $classrooms .= " ".$classroom_name;
+            }
+        }
+        return array(
+            // "id" => $elem->id,
+            "emisor_id" => $elem->emisor_id,
+            "user_id" => $elem->user_id,
+            "reservation_request_id" => $elem->id,
+            "state" => $elem->state,
+            "reservation_date" => $elem->reservation_date,
+            "detail" => $elem->state=="rejected"?$elem->rejection_reason:$classrooms
+        );
+    });
+
+});
+Route::get('notifications/all',function(){
+    $reservations = UserBooking::where(function($q){
+        $q->where('state','assigned')->orWhere('state','rejected');
+    })->get();
+    return $reservations->map(function ($elem) {
+        $user = User::find($elem->user_id)->name;
+        $subject = Subject::find($elem->subject_id)->name_subject;
+        $assigned_groups = [];
+        $assigned_groups_str  = explode(" ", $elem->assigned_groups);
+        $classrooms = "Se asigno las aulas: ";
+        if (strlen($elem->assigned_groups)) {
+            for ($i = 0; $i < count($assigned_groups_str); $i++) {
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $classrooms .= " ".$classroom_name;
+            }
+        }
+        return array(
+            // "id" => $elem->id,
+            "emisor_id" => $elem->emisor_id,
+            "user_id" => $elem->user_id,
+            "userName" => $user,
+            "reservation_request_id" => $elem->id,
+            "state" => $elem->state,
+            "reservation_date" => $elem->reservation_date,
+            "subject" => $subject,
+            "fecha de emision" => $elem->notification_date,
+            "detail" => $elem->state=="rejected"?$elem->rejection_reason:$classrooms
+        );
+    });
+});
+
 
 
 

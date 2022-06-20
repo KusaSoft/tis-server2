@@ -30,6 +30,10 @@ class CreateUserBookingTables extends Migration
             $table->string("rejection_reason")->nullable();
             $table->string("assigned_classrooms")->nullable();
 
+            $table->string("emisor_id")->nullable();
+            $table->date("notification_date")->nullable();
+            $table->boolean("read")->nullable();
+
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('subject_id')->references('id')->on('subjects')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('classroom_id')->references('id')->on('classrooms')->onUpdate('cascade')->onDelete('cascade');
