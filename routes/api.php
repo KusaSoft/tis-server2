@@ -851,11 +851,13 @@ Route::get('notifications/{user_id}',function($user_id){
         );
     });
 
-});
-Route::get('notifications/all',function(){
+})->where('user_id','[0-9]+');
+
+Route::get('notifications/all/',function(){
     $reservations = UserBooking::where(function($q){
         $q->where('state','assigned')->orWhere('state','rejected');
     })->get();
+    return $reservations;
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
         $subject = Subject::find($elem->subject_id)->name_subject;
