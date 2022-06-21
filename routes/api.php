@@ -191,6 +191,28 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
     return $reservations->map(function ($elem) use ($user_name) {
         $subject_name = Subject::find($elem->subject_id)->name_subject;
         $classroom_name = Classroom::find(1)->name_classroom;
+
+        $assigned_groups = [];
+        $assigned_groups_str  = explode(" ", $elem->assigned_groups);
+        if (strlen($elem->assigned_groups)) {
+            for ($i = 0; $i < count($assigned_groups_str); $i++) {
+                $classroom_id = $assigned_groups_str[$i];
+                $classroom = Classroom::find($classroom_id);
+                $classroom_name = $classroom->name_classroom;
+                $edifice = $classroom->edifice;
+                $floor = $classroom->floor;
+                $amount = $classroom->total_students;
+                $classroom_arr = [
+                    "id" => $classroom_id,
+                    "name_classroom" => $classroom_name,
+                    "edifice" => $edifice,
+                    "floor" => $floor,
+                    "amount" => $amount
+                ];
+                $assigned_groups[$i] = $classroom_arr;
+            }
+        }
+
         return array(
             "id" => $elem->id,
             "name" => $user_name,
@@ -204,7 +226,8 @@ Route::get('reservation/{user_id}/{state}', function ($user_id, $state) {
             "group_list" => $elem->group_list,
             "other_group_list" => $elem->other_groups,
             "reservation_date" => $elem->reservation_date,
-            "register_date" => $elem->register_date
+            "register_date" => $elem->register_date,
+            "assigned_groups" => $assigned_groups
         );
     });
 });
@@ -896,7 +919,6 @@ Route::get('notifications/all/',function(){
 Route::put('reservations/confirm/{userbooking_id}/{state}',function($userbooking_id,$state){
     $reservation = UserBooking::find($userbooking_id);
     $reservation->state = $state;
-    $reservation->save();
     return response()->json([
         "message" => "Asignacion de aula ".($reservation->state=="assigned"?"confirmada":"rechazada")
     ]);
