@@ -911,9 +911,10 @@ Route::get('notifications/all/',function(){
     });
 });
 
-Route::put('reservations/confirm/{userbooking_id}/{state}',function($userbooking_id,$state){
+Route::put  ('reservations/confirm/{userbooking_id}/{state}',function($userbooking_id,$state){
     $reservation = UserBooking::find($userbooking_id);
     $reservation->state = $state;
+    $reservation->save();
     return response()->json([
         "message" => "Asignacion de aula ".($reservation->state=="confirmed"?"confirmada":"rechazada")
     ]);
