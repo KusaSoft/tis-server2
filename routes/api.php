@@ -282,7 +282,8 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "horario_end" => $userbooking->horario_end,
             "state" => $userbooking->state,
             "group_list" => $group_list,
-            "other_groups" => $other_group_list
+            "other_groups" => $other_group_list,
+            "assigned_groups" => $assigned_groups
         ]);
     } else {
         return response()->json([
@@ -733,7 +734,6 @@ Route::get('roles/users/{role}', function ($role) {
 });
 
 // ---------------------------------------------------------------------------------------------
-
 Route::get('reservations/assigned/{user_id}', function ($user_id) {
     $reservations = UserBooking::where('user_id', $user_id)->where('state', 'assigned')->get();
     return $reservations->map(function ($elem) {
@@ -893,7 +893,14 @@ Route::get('notifications/all/',function(){
     });
 });
 
-
+Route::put('reservations/confirm/{userbooking_id}/{state}',function($userbooking_id,$state){
+    $reservation = UserBooking::find($userbooking_id);
+    $reservation->state = $state;
+    $reservation->save();
+    return response()->json([
+        "message" => "Asignacion de aula ".($reservation->state=="assigned"?"confirmada":"rechazada")
+    ]);
+});
 
 
 // ---------------------------------------------------------------------------------------------
