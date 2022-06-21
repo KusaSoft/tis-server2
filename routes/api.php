@@ -754,7 +754,9 @@ Route::get('roles/users/{role}', function ($role) {
 
 // ---------------------------------------------------------------------------------------------
 Route::get('reservations/assigned/{user_id}', function ($user_id) {
-    $reservations = UserBooking::where('user_id', $user_id)->where('state', 'assigned')->get();
+    $reservations = UserBooking::where('user_id', $user_id)->where(function($v){
+        $v->where('state','assigned')->orWhere('state','confirmed');
+    })->get();
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
         $subject = Subject::find($elem->subject_id)->name_subject;
