@@ -862,7 +862,7 @@ Route::get('notifications/all',function(){
         $assigned_groups = [];
         $assigned_groups_str  = explode(" ", $elem->assigned_groups);
         $classrooms = "Se asigno las aulas: ";
-        if (strlen($elem->assigned_groups)) {
+        if (strlen($elem->assigned_groups) > 0) {
             for ($i = 0; $i < count($assigned_groups_str); $i++) {
                 $classroom_id = $assigned_groups_str[$i];
                 $classroom = Classroom::find($classroom_id);
