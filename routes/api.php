@@ -653,13 +653,13 @@ Route::put('reservations', function (Request $request) {
     $res = UserBooking::find($id);
     $res->state = $request->state;
     $res->rejection_reason = $request->rejection_reason;
-    $assigned_classrooms_str = "";
-    foreach($request->assigned_classrooms as $classroom){
-        $assigned_classrooms_str.=$classroom;
-    }
-    $res->assigned_classrooms = $assigned_classrooms_str;
-    return $res;
-    // $res->assigned_classrooms = $request->assigned_classrooms;
+    // $assigned_classrooms_str = "";
+    // foreach($request->assigned_classrooms as $classroom){
+    //     $assigned_classrooms_str.=$classroom;
+    // }
+    // $res->assigned_classrooms = $assigned_classrooms_str;
+    // return $res;
+    $res->assigned_classrooms = $request->assigned_classrooms;
     $res->save();
     return response()->json([
         "message" => "...",
