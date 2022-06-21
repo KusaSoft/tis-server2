@@ -882,7 +882,7 @@ Route::get('notifications/{user_id}',function($user_id){
 
 Route::get('notifications/all/',function(){
     $reservations = UserBooking::where(function($q){
-        $q->where('state','assigned')->orWhere('state','rejected');
+        $q->where('state','assigned')->orWhere('state','rejected')->orWhere('state','confirmed');
     })->get();
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
