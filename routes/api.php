@@ -635,10 +635,16 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     foreach($reservations as $reserv){
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
+
+        $horario_ini_time = strtotime($horario_ini);
+        $horario_end_time = strtotime($horario_end);
+        
+        $hour_ini_time = strtotime($hour_ini);
+        $hour_end_time = strtotime($hour_end);
         //si hay un solape en los horarios, lo anhadimos 
-        if(($horario_end > $hour_ini && $horario_end < $hour_end) ||
-           ($horario_ini > $hour_ini && $horario_ini < $hour_end) ||
-           ($horario_ini < $hour_ini && $horario_end > $hour_end)){
+        if(($horario_end_time > $hour_ini_time && $horario_end_time < $hour_end_time) ||
+           ($horario_ini_time > $hour_ini_time && $horario_ini_time < $hour_end_time) ||
+           ($horario_ini_time < $hour_ini_time && $horario_end_time > $hour_end_time)){
             array_push($classrooms_used,$reserv->id);
         }
     }
