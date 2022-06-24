@@ -684,7 +684,9 @@ Route::put('reservations', function (Request $request) {
     $res->state = $request->state;
     $res->rejection_reason = $request->rejection_reason;
 
-    $assigned_classrooms_str = implode(" ",$request->assigned_classrooms);
+    $assigned_classrooms_str = implode(" ",array_column($request->assigned_classrooms,"id"));
+
+
     $res->assigned_classrooms = $assigned_classrooms_str;
 
 
