@@ -627,29 +627,11 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
         array_push($classrooms_id,$classroom["id"]);
     }
     $day = $reservation->reservation_date;
-    // $x = $reservation->horario_ini;
-    // $y = $reservation->horario_end;
-    $hour_ini = $reservation->horario_ini;
-    $hour_end = $reservation->horario_end;
+    $x = $reservation->horario_ini;
+    $y = $reservation->horario_end;
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
     $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
-    // foreach($reservations as $reserv){
-    //     $horario_ini = $reserv->horario_ini;
-    //     $horario_end = $reserv->horario_end;
-
-    //     $horario_ini_time = strtotime($horario_ini);
-    //     $horario_end_time = strtotime($horario_end);
-        
-    //     $xx = strtotime($x);
-    //     $yy = strtotime($y);
-    //     //si hay un solape en los horarios, lo anhadimos 
-    //     if(($horario_end_time > $xx && $horario_end_time < $yy) ||
-    //        ($horario_ini_time > $xx && $horario_ini_time < $yy) ||
-    //        ($horario_ini_time < $xx && $horario_end_time > $yy)){
-    //         array_push($classrooms_used,$reserv->id);
-    //     }
-    // }
     foreach($reservations as $reserv){
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
@@ -657,16 +639,15 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
         $horario_ini_time = strtotime($horario_ini);
         $horario_end_time = strtotime($horario_end);
         
-        $hour_ini_time = strtotime($hour_ini);
-        $hour_end_time = strtotime($hour_end);
+        $xx = strtotime($x);
+        $yy = strtotime($y);
         //si hay un solape en los horarios, lo anhadimos 
-        if(($horario_end_time > $hour_ini_time && $horario_end_time < $hour_end_time) ||
-           ($horario_ini_time > $hour_ini_time && $horario_ini_time < $hour_end_time) ||
-           ($horario_ini_time < $hour_ini_time && $horario_end_time > $hour_end_time)){
+        if(($horario_end_time > $xx && $horario_end_time < $yy) ||
+           ($horario_ini_time > $xx && $horario_ini_time < $yy) ||
+           ($horario_ini_time < $xx && $horario_end_time > $yy)){
             array_push($classrooms_used,$reserv->id);
         }
     }
-    return $classrooms_used;
     $classrooms_allowed = [];
     foreach($classrooms_id as $classroom){
         if(!in_array($classrooms_id,$classrooms_used)){
