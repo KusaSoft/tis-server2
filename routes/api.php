@@ -885,6 +885,7 @@ Route::get('notifications/{user_id}',function($user_id){
             "reservation_request_id" => $elem->id,
             "state" => $elem->state,
             "reservation_date" => $elem->reservation_date,
+            "notification_date" => $elem->notification_date,
             "detail" => $elem->state=="rejected"?$elem->rejection_reason:$classrooms
         );
     });
