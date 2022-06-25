@@ -269,10 +269,10 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
                 $other_group_list[$i] = $group_arr;
             }
         }
-        $assigned_classrooms_str = preg_split("/\s+/",$userbooking->assigned_classrooms);
+        $assigned_classrooms_str = preg_split("/\s+/", $userbooking->assigned_classrooms);
         $assigned_classrooms = [];
-        if(strlen($userbooking->assigned_classrooms) > 0){
-            for($i = 0; $i < count($assigned_classrooms_str); $i++){
+        if (strlen($userbooking->assigned_classrooms) > 0) {
+            for ($i = 0; $i < count($assigned_classrooms_str); $i++) {
                 $classroom_id = $assigned_classrooms_str[$i];
                 $classroom = Classroom::find($classroom_id);
                 $classroom_name = $classroom->name_classroom;
@@ -623,8 +623,8 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     $reservation = UserBooking::find($userbooking_id);
     $classrooms = array_values(Classroom::all(['id'])->toArray());
     $classrooms_id = [];
-    foreach($classrooms as $classroom){
-        array_push($classrooms_id,$classroom["id"]);
+    foreach ($classrooms as $classroom) {
+        array_push($classrooms_id, $classroom["id"]);
     }
     $day = $reservation->reservation_date;
     $x = $reservation->horario_ini;
@@ -632,38 +632,39 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
     $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
-    foreach($reservations as $reserv){
+    foreach ($reservations as $reserv) {
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
 
         $horario_ini_time = strtotime($horario_ini);
         $horario_end_time = strtotime($horario_end);
-        
+
         $xx = strtotime($x);
         $yy = strtotime($y);
         //si hay un solape en los horarios, lo anhadimos 
-        if(($horario_end_time > $xx && $horario_end_time < $yy) ||
-           ($horario_ini_time > $xx && $horario_ini_time < $yy) ||
-           ($horario_ini_time < $xx && $horario_end_time > $yy)){
-            array_push($classrooms_used,$reserv->id);
+        if (($horario_end_time > $xx && $horario_end_time < $yy) ||
+            ($horario_ini_time > $xx && $horario_ini_time < $yy) ||
+            ($horario_ini_time < $xx && $horario_end_time > $yy)
+        ) {
+            array_push($classrooms_used, $reserv->id);
         }
     }
     $classrooms_allowed = [];
-    foreach($classrooms_id as $classroom){
-        if(!in_array($classrooms_id,$classrooms_used)){
-            array_push($classrooms_allowed,$classroom);
+    foreach ($classrooms_id as $classroom) {
+        if (!in_array($classrooms_id, $classrooms_used)) {
+            array_push($classrooms_allowed, $classroom);
         }
     }
-    return array_map(function($elem){
+    return array_map(function ($elem) {
         $class = Classroom::find($elem);
         return array(
-            "id"=>$class->id,
+            "id" => $class->id,
             "name_classroom" => $class->name_classroom,
             "edifice" => $class->edifice,
             "floor" => $class->floor,
             "amount" => $class->total_students
         );
-    },$classrooms_allowed);
+    }, $classrooms_allowed);
 });
 
 Route::get('classroom/{classroom_id}', function ($classroom_id) {
@@ -684,12 +685,12 @@ Route::put('reservations', function (Request $request) {
     $res->state = $request->state;
     $res->rejection_reason = $request->rejection_reason;
 
-    $assigned_classrooms_str = implode(" ",array_column($request->assigned_classrooms,"id"));
-
-
+    // $assigned_classrooms_str = implode(" ",array_column($request->assigned_classrooms,"id"));
+    $assigned_classrooms_str = "";
+    if (count($request->assigned_classrooms) > 0) {
+        $assigned_classrooms_str = implode(" ", $request->assigned_classrooms);
+    }
     $res->assigned_classrooms = $assigned_classrooms_str;
-
-
     date_default_timezone_set("America/La_Paz");
     $res->notification_date = date('Y-m-d H:i:s');
 
@@ -767,8 +768,8 @@ Route::get('roles/users/{role}', function ($role) {
 
 // ---------------------------------------------------------------------------------------------
 Route::get('reservations/assigned/{user_id}', function ($user_id) {
-    $reservations = UserBooking::where('user_id', $user_id)->where(function($v){
-        $v->where('state','assigned')->orWhere('state','confirmed');
+    $reservations = UserBooking::where('user_id', $user_id)->where(function ($v) {
+        $v->where('state', 'assigned')->orWhere('state', 'confirmed');
     })->get();
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
@@ -815,7 +816,7 @@ Route::get('reservations/assigned/{user_id}', function ($user_id) {
     });
 });
 
-Route::get('reservations/rejected/{user_id}',function($user_id){
+Route::get('reservations/rejected/{user_id}', function ($user_id) {
     $reservations = UserBooking::where('user_id', $user_id)->where('state', 'rejected')->get();
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
@@ -862,9 +863,9 @@ Route::get('reservations/rejected/{user_id}',function($user_id){
     });
 });
 
-Route::get('notifications/{user_id}',function($user_id){
-    $reservations = UserBooking::where('user_id', $user_id)->where(function($q){
-        $q->where('state','assigned')->orWhere('state','rejected')->orWhere('state','confirmed');
+Route::get('notifications/{user_id}', function ($user_id) {
+    $reservations = UserBooking::where('user_id', $user_id)->where(function ($q) {
+        $q->where('state', 'assigned')->orWhere('state', 'rejected')->orWhere('state', 'confirmed');
     })->get();
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
@@ -877,7 +878,7 @@ Route::get('notifications/{user_id}',function($user_id){
                 $classroom_id = $assigned_classrooms_str[$i];
                 $classroom = Classroom::find($classroom_id);
                 $classroom_name = $classroom->name_classroom;
-                $classrooms .= " ".$classroom_name;
+                $classrooms .= " " . $classroom_name;
             }
         }
         return array(
@@ -888,15 +889,14 @@ Route::get('notifications/{user_id}',function($user_id){
             "state" => $elem->state,
             "reservation_date" => $elem->reservation_date,
             "notification_date" => $elem->notification_date,
-            "detail" => $elem->state=="rejected"?$elem->rejection_reason:$classrooms
+            "detail" => $elem->state == "rejected" ? $elem->rejection_reason : $classrooms
         );
     });
+})->where('user_id', '[0-9]+');
 
-})->where('user_id','[0-9]+');
-
-Route::get('notifications/all/',function(){
-    $reservations = UserBooking::where(function($q){
-        $q->where('state','assigned')->orWhere('state','rejected')->orWhere('state','confirmed');
+Route::get('notifications/all/', function () {
+    $reservations = UserBooking::where(function ($q) {
+        $q->where('state', 'assigned')->orWhere('state', 'rejected')->orWhere('state', 'confirmed');
     })->get();
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
@@ -909,7 +909,7 @@ Route::get('notifications/all/',function(){
                 $classroom_id = $assigned_classrooms_str[$i];
                 $classroom = Classroom::find($classroom_id);
                 $classroom_name = $classroom->name_classroom;
-                $classrooms .= " ".$classroom_name;
+                $classrooms .= " " . $classroom_name;
             }
         }
         return array(
@@ -922,17 +922,17 @@ Route::get('notifications/all/',function(){
             "reservation_date" => $elem->reservation_date,
             "subject" => $subject,
             "notification_date" => $elem->notification_date,
-            "detail" => $elem->state=="rejected"?$elem->rejection_reason:$classrooms
+            "detail" => $elem->state == "rejected" ? $elem->rejection_reason : $classrooms
         );
     });
 });
 
-Route::put  ('reservations/confirm/{userbooking_id}/{state}',function($userbooking_id,$state){
+Route::put('reservations/confirm/{userbooking_id}/{state}', function ($userbooking_id, $state) {
     $reservation = UserBooking::find($userbooking_id);
     $reservation->state = $state;
     $reservation->save();
     return response()->json([
-        "message" => "Asignacion de aula ".($reservation->state=="confirmed"?"confirmada":"rechazada")
+        "message" => "Asignacion de aula " . ($reservation->state == "confirmed" ? "confirmada" : "rechazada")
     ]);
 });
 
