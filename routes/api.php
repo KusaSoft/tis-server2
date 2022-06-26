@@ -641,12 +641,25 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
 
         $xx = strtotime($x);
         $yy = strtotime($y);
-        //si hay un solape en los horarios, lo anhadimos 
-        if (($horario_end_time > $xx && $horario_end_time < $yy) ||
-            ($horario_ini_time > $xx && $horario_ini_time < $yy) ||
-            ($horario_ini_time < $xx && $horario_end_time > $yy)
-        ) {
-            array_push($classrooms_used, $reserv->id);
+        if($horario_ini_time < $xx && $horario_end_time > $yy){
+            array_push($classrooms_used,$reserv->id);
+        }
+        else if($horario_ini_time < $xx && $horario_end_time < $yy){
+        }
+        else if($horario_ini_time < $xx && $horario_end_time > $yy){
+            array_push($classrooms_used,$reserv->id);
+        }
+        else if($horario_ini_time > $xx && $horario_end_time < $yy){
+            array_push($classrooms_used,$reserv->id);
+        }
+        else if($horario_ini_time > $xx && $horario_end_time > $yy){
+            array_push($classrooms_used,$reserv->id);
+        }
+        else if($horario_ini_time > $yy && $horario_end_time > $yy){
+        }
+        else if($horario_ini_time <= $xx && $horario_end_time == $xx){
+        }
+        else if($horario_ini_time == $yy && $horario_end_time >= $yy){
         }
     }
     $classrooms_allowed = [];
