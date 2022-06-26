@@ -664,7 +664,7 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     }
     $classrooms_allowed = [];
     foreach ($classrooms_id as $classroom) {
-        if (!in_array($classrooms_id, $classrooms_used)) {
+        if (!in_array($classroom, $classrooms_used)) {
             array_push($classrooms_allowed, $classroom);
         }
     }
