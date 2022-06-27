@@ -661,6 +661,9 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
         }
         else if($horario_ini_time == $yy && $horario_end_time >= $yy){
         }
+        else if($horario_ini_time == $xx && $horario_end_time == $yy){
+            array_push($classrooms_used,$reserv->id);
+        }
     }
     $classrooms_allowed = [];
     foreach ($classrooms_id as $classroom) {
