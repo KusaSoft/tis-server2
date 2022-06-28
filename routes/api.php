@@ -392,7 +392,6 @@ Route::delete('draft/{userbooking_id}', function ($userbooking_id) {
     }
 });
 
-
 Route::post('/login', function (Request $request) {
     $username = $request->email;
     $password = $request->password;
@@ -641,28 +640,36 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
 
         $xx = strtotime($x);
         $yy = strtotime($y);
-        if($horario_ini_time < $xx && $horario_end_time > $yy){
-            array_push($classrooms_used,$reserv->id);
+
+        $classrooms_ids = [];
+        if (strlen($reserv->assigned_classrooms) > 0) {
+            $classrooms_ids = preg_split("/\s+/", $reserv->assigned_classrooms);
         }
-        else if($horario_ini_time == $xx && $horario_end_time == $yy){
-            array_push($classrooms_used,$reserv->id);
-        }
-        else if($horario_ini_time < $xx && $horario_end_time > $yy){
-            array_push($classrooms_used,$reserv->id);
-        }
-        else if($horario_ini_time > $xx && $horario_end_time < $yy){
-            array_push($classrooms_used,$reserv->id);
-        }
-        else if($horario_ini_time > $xx && $horario_end_time > $yy){
-            array_push($classrooms_used,$reserv->id);
-        }
-        else if($horario_ini_time < $xx && $horario_end_time < $yy){
-        }
-        else if($horario_ini_time > $yy && $horario_end_time > $yy){
-        }
-        else if($horario_ini_time <= $xx && $horario_end_time == $xx){
-        }
-        else if($horario_ini_time == $yy && $horario_end_time >= $yy){
+
+        if ($horario_ini_time < $xx && $horario_end_time > $yy) {
+            foreach ($classrooms_ids as $classroom_id) {
+                array_push($classrooms_used, $classroom_id);
+            }
+        } else if ($horario_ini_time == $xx && $horario_end_time == $yy) {
+            foreach ($classrooms_ids as $classroom_id) {
+                array_push($classrooms_used, $classroom_id);
+            }
+        } else if ($horario_ini_time < $xx && $horario_end_time > $yy) {
+            foreach ($classrooms_ids as $classroom_id) {
+                array_push($classrooms_used, $classroom_id);
+            }
+        } else if ($horario_ini_time > $xx && $horario_end_time < $yy) {
+            foreach ($classrooms_ids as $classroom_id) {
+                array_push($classrooms_used, $classroom_id);
+            }
+        } else if ($horario_ini_time > $xx && $horario_end_time > $yy) {
+            foreach ($classrooms_ids as $classroom_id) {
+                array_push($classrooms_used, $classroom_id);
+            }
+        } else if ($horario_ini_time < $xx && $horario_end_time < $yy) {
+        } else if ($horario_ini_time > $yy && $horario_end_time > $yy) {
+        } else if ($horario_ini_time <= $xx && $horario_end_time == $xx) {
+        } else if ($horario_ini_time == $yy && $horario_end_time >= $yy) {
         }
     }
     $classrooms_allowed = [];
