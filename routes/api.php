@@ -634,42 +634,21 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     foreach ($reservations as $reserv) {
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
-
         $horario_ini_time = strtotime($horario_ini);
         $horario_end_time = strtotime($horario_end);
-
         $xx = strtotime($x);
         $yy = strtotime($y);
-
         $classrooms_ids = [];
         if (strlen($reserv->assigned_classrooms) > 0) {
             $classrooms_ids = preg_split("/\s+/", $reserv->assigned_classrooms);
         }
+        if(seSolapan($xx,$yy,$horario_ini_time,$horario_end_time)){
+            foreach ($classrooms_ids as $classroom_id) {
+                if(in_array($classrooms_id,$classrooms_used)){
 
-        if ($horario_ini_time < $xx && $horario_end_time > $yy) {
-            foreach ($classrooms_ids as $classroom_id) {
-                array_push($classrooms_used, $classroom_id);
+                    array_push($classrooms_used, $classroom_id);
+                }
             }
-        } else if ($horario_ini_time == $xx && $horario_end_time == $yy) {
-            foreach ($classrooms_ids as $classroom_id) {
-                array_push($classrooms_used, $classroom_id);
-            }
-        } else if ($horario_ini_time < $xx && $horario_end_time > $yy) {
-            foreach ($classrooms_ids as $classroom_id) {
-                array_push($classrooms_used, $classroom_id);
-            }
-        } else if ($horario_ini_time > $xx && $horario_end_time < $yy) {
-            foreach ($classrooms_ids as $classroom_id) {
-                array_push($classrooms_used, $classroom_id);
-            }
-        } else if ($horario_ini_time > $xx && $horario_end_time > $yy) {
-            foreach ($classrooms_ids as $classroom_id) {
-                array_push($classrooms_used, $classroom_id);
-            }
-        } else if ($horario_ini_time < $xx && $horario_end_time < $yy) {
-        } else if ($horario_ini_time > $yy && $horario_end_time > $yy) {
-        } else if ($horario_ini_time <= $xx && $horario_end_time == $xx) {
-        } else if ($horario_ini_time == $yy && $horario_end_time >= $yy) {
         }
     }
     $classrooms_allowed = [];
