@@ -677,7 +677,7 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     $classrooms = array_values(Classroom::all(['id'])->toArray());
     $classrooms_id = [];
     foreach ($classrooms as $classroom) {
-        array_push($classrooms_id, $classroom["id"]);
+        array_push($classrooms_id, $classroom["id"]."");
     }
 
     $day = $reservation->reservation_date;
@@ -685,7 +685,10 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     $y = $reservation->horario_end;
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
-    $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
+    $reservations = UserBooking::where(function($q){
+        return $q->where('state','assigned')->orWhere('state','confirmed');
+    })->where('reservation_date', $day)->get();
+    // $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
     foreach ($reservations as $reserv) {
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
@@ -700,9 +703,7 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
         
         if(seSolapan($xx,$yy,$horario_ini_time,$horario_end_time)){
             foreach ($classrooms_ids as $classroom_id) {
-                if(in_array($classrooms_id,$classrooms_used)){
-                    array_push($classrooms_used, $classroom_id);
-                }
+                array_push($classrooms_used, $classroom_id);
             }
         }
     }
