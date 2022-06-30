@@ -630,7 +630,10 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     $y = $reservation->horario_end;
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
-    $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
+    $reservations = UserBooking::where(function($q){
+        return $q->where('state','assigned')->orWhere('state','confirmed');
+    })->where('reservation_date', $day)->get();
+    // $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
     foreach ($reservations as $reserv) {
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
