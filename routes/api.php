@@ -637,17 +637,13 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     foreach ($reservations as $reserv) {
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
-        $horario_ini_time = strtotime($horario_ini);
-        $horario_end_time = strtotime($horario_end);
-        $xx = strtotime($x);
-        $yy = strtotime($y);
         $classrooms_ids = [];
         if (strlen($reserv->assigned_classrooms) > 0) {
             $classrooms_ids = preg_split("/\s+/", $reserv->assigned_classrooms);
         }
         
         echo("hola mundo: ");
-        if(seSolapan($xx,$yy,$horario_ini_time,$horario_end_time)){
+        if(seSolapan($x,$y,$horario_ini,$horario_end)){
             foreach ($classrooms_ids as $classroom_id) {
                 array_push($classrooms_used, $classroom_id);
             }
