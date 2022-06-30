@@ -630,7 +630,7 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     $y = $reservation->horario_end;
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
-    $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day )->get();
+    $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
     foreach ($reservations as $reserv) {
         $horario_ini = $reserv->horario_ini;
         $horario_end = $reserv->horario_end;
@@ -645,23 +645,24 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
         
         if(seSolapan($xx,$yy,$horario_ini_time,$horario_end_time)){
             foreach ($classrooms_ids as $classroom_id) {
-                if(!in_array($classrooms_id,$classrooms_used)){
+                if(in_array($classrooms_id,$classrooms_used)){
                     array_push($classrooms_used, $classroom_id);
                 }
             }
         }
     }
-    return array(
-        $classrooms_id,
-        $classrooms_used,
-        $reservations
-    );
     $classrooms_allowed = [];
     foreach ($classrooms_id as $classroom) {
         if (!in_array($classroom, $classrooms_used)) {
             array_push($classrooms_allowed, $classroom);
         }
     }
+    return array(
+        $classrooms_id,
+        $classrooms_used,
+        $reservations,
+        $classrooms_allowed
+    );
     return array_map(function ($elem) {
         $class = Classroom::find($elem);
         return array(
