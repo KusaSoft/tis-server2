@@ -623,7 +623,7 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     $classrooms = array_values(Classroom::all(['id'])->toArray());
     $classrooms_id = [];
     foreach ($classrooms as $classroom) {
-        array_push($classrooms_id, $classroom["id"]);
+        array_push($classrooms_id, $classroom["id"]."");
     }
     $day = $reservation->reservation_date;
     $x = $reservation->horario_ini;
@@ -645,9 +645,7 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
         
         if(seSolapan($xx,$yy,$horario_ini_time,$horario_end_time)){
             foreach ($classrooms_ids as $classroom_id) {
-                if(in_array($classrooms_id,$classrooms_used)){
-                    array_push($classrooms_used, $classroom_id);
-                }
+                array_push($classrooms_used, $classroom_id);
             }
         }
     }
