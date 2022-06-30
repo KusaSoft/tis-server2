@@ -653,7 +653,8 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     }
     return array(
         $classrooms_id,
-        $classrooms_used
+        $classrooms_used,
+        $reservations
     );
     $classrooms_allowed = [];
     foreach ($classrooms_id as $classroom) {
