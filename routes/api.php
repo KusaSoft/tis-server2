@@ -646,8 +646,8 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
             $classrooms_ids = preg_split("/\s+/", $reserv->assigned_classrooms);
         }
         
+        echo("hola mundo: ");
         if(seSolapan($xx,$yy,$horario_ini_time,$horario_end_time)){
-            echo("hola mundo: ".$classrooms_ids);
             foreach ($classrooms_ids as $classroom_id) {
                 array_push($classrooms_used, $classroom_id);
             }
