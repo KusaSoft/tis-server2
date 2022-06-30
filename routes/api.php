@@ -625,7 +625,6 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     foreach ($classrooms as $classroom) {
         array_push($classrooms_id, $classroom["id"]);
     }
-    return $classrooms_id;
     $day = $reservation->reservation_date;
     $x = $reservation->horario_ini;
     $y = $reservation->horario_end;
@@ -652,7 +651,10 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
             }
         }
     }
-    return $classrooms_used;
+    return array(
+        $classrooms_id,
+        $classrooms_used
+    );
     $classrooms_allowed = [];
     foreach ($classrooms_id as $classroom) {
         if (!in_array($classroom, $classrooms_used)) {
