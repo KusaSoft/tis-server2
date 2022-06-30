@@ -47,4 +47,7 @@ class HelpersTest extends TestCase
     public function test_seSolapan11(){
         assertFalse(seSolapan("17:15","20:15","11:15","15:45"));
     }
+    public function test_seSolapan12(){
+        assertTrue(seSolapan("15:45","17:15","15:45","17:15"));
+    }
 }
