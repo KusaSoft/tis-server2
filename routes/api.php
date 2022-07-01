@@ -755,7 +755,15 @@ Route::put('reservations', function (Request $request) {
 });
 
 Route::get('reservations/{state}', function ($state) {
-    $user_bookings = UserBooking::where('state', $state)->get();
+    $user_bookings = [];
+    if($state == 'assigned'){
+        $user_bookings = UserBooking::where(function($q){
+            return $q->where('state','assigned')->orWhere('state','confirmed');
+        })->get();
+    }
+    else{
+        $user_bookings = UserBooking::where('state', $state)->get();
+    }
     return $user_bookings->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
         $subject = Subject::find($elem->subject_id)->name_subject;
