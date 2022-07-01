@@ -623,15 +623,15 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
     $classrooms = array_values(Classroom::all(['id'])->toArray());
     $classrooms_id = [];
     foreach ($classrooms as $classroom) {
-        array_push($classrooms_id, $classroom["id"]."");
+        array_push($classrooms_id, $classroom["id"] . "");
     }
     $day = $reservation->reservation_date;
     $x = $reservation->horario_ini;
     $y = $reservation->horario_end;
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
-    $reservations = UserBooking::where(function($q){
-        return $q->where('state','assigned')->orWhere('state','confirmed');
+    $reservations = UserBooking::where(function ($q) {
+        return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
     })->where('reservation_date', $day)->get();
     // $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
     foreach ($reservations as $reserv) {
@@ -641,8 +641,8 @@ Route::get('classrooms/debug/{userbooking_id}', function ($userbooking_id) {
         if (strlen($reserv->assigned_classrooms) > 0) {
             $classrooms_ids = preg_split("/\s+/", $reserv->assigned_classrooms);
         }
-        
-        if(seSolapan($x,$y,$horario_ini,$horario_end)){
+
+        if (seSolapan($x, $y, $horario_ini, $horario_end)) {
             foreach ($classrooms_ids as $classroom_id) {
                 array_push($classrooms_used, $classroom_id);
             }
@@ -677,7 +677,7 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     $classrooms = array_values(Classroom::all(['id'])->toArray());
     $classrooms_id = [];
     foreach ($classrooms as $classroom) {
-        array_push($classrooms_id, $classroom["id"]."");
+        array_push($classrooms_id, $classroom["id"] . "");
     }
 
     $day = $reservation->reservation_date;
@@ -685,8 +685,8 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
     $y = $reservation->horario_end;
     $classrooms_used = [];
     //             en un futuro cambiara a      'confirmed'
-    $reservations = UserBooking::where(function($q){
-        return $q->where('state','assigned')->orWhere('state','confirmed');
+    $reservations = UserBooking::where(function ($q) {
+        return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
     })->where('reservation_date', $day)->get();
     // $reservations = UserBooking::where('state', 'assigned')->where('reservation_date', $day)->get();
     foreach ($reservations as $reserv) {
@@ -696,7 +696,7 @@ Route::get('classrooms/{userbooking_id}', function ($userbooking_id) {
         if (strlen($reserv->assigned_classrooms) > 0) {
             $classrooms_ids = preg_split("/\s+/", $reserv->assigned_classrooms);
         }
-        if(seSolapan($x,$y,$horario_ini,$horario_end)){
+        if (seSolapan($x, $y, $horario_ini, $horario_end)) {
             foreach ($classrooms_ids as $classroom_id) {
                 array_push($classrooms_used, $classroom_id);
             }
@@ -755,14 +755,11 @@ Route::put('reservations', function (Request $request) {
 });
 
 Route::get('reservations/{state}', function ($state) {
-    $user_bookings = [];
-    if($state == 'assigned'){
-        $user_bookings = UserBooking::where(function($q){
-            return $q->where('state','assigned')->orWhere('state','confirmed');
+    $user_bookings = UserBooking::where('state', $state)->get();
+    if ($state == 'assigned') {
+        $user_bookings = UserBooking::where(function ($q) {
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
         })->get();
-    }
-    else{
-        $user_bookings = UserBooking::where('state', $state)->get();
     }
     return $user_bookings->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
