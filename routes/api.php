@@ -593,11 +593,12 @@ Route::put('users/{user_id}', function (Request $request, $user_id) {
 
 Route::post('subjects/', function (Request $request) {
     $subj = null;
-    $name_subject = strtoupper($request->name_subject);
+    $name_subject = remove_accents($request->name_subject);
+    $name_subject = strtoupper($name_subject);
     $subj = Subject::where('name_subject', $name_subject)->first();
     if (!isset($subj)) {
         $newSubject = new Subject();
-        $newSubject->name_subject = $request->name_subject;
+        $newSubject->name_subject = $name_subject;
         $newSubject->save();
         return response()->json([
             "message" => "Nueva materia registrada con exito"
