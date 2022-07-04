@@ -547,7 +547,7 @@ Route::post('users', function (Request $request) {
                 "successful" => false
             ]);
         }
-        $email = $request->email;
+        $email = strtolower($request->email);
         if(User::where('email',$email)->exists()){
             return response()->json([
                 "message" => "Ya existe un usuario con el mismo correo electronico",
@@ -593,7 +593,8 @@ Route::put('users/{user_id}', function (Request $request, $user_id) {
 
 Route::post('subjects/', function (Request $request) {
     $subj = null;
-    $subj = Subject::where('name_subject', $request->name_subject)->first();
+    $name_subject = strtoupper($request->name_subject);
+    $subj = Subject::where('name_subject', $name_subject)->first();
     if (!isset($subj)) {
         $newSubject = new Subject();
         $newSubject->name_subject = $request->name_subject;
