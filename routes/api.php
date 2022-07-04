@@ -1054,6 +1054,14 @@ Route::put('reservations/confirm/{userbooking_id}/{state}', function ($userbooki
     ]);
 });
 
+Route::get('reservations/timed-out',function(){
+    $reservs = UserBooking::all()->toArray();
+    date_default_timezone_set("America/La_Paz");
+
+    
+
+    return $reservs;
+});
 
 // ---------------------------------------------------------------------------------------------
 Route::get('test/users', function () {
