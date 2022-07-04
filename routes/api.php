@@ -149,13 +149,13 @@ Route::post('reservation-request', function (Request $request) {
         $reservation->classroom_id = 1;
         $reservation->state = $request->state;
 
-        if(UserBooking::where('user_id',$reservation->user_id)->where('subject_id',$reservation->subject_id)
-           ->where('horario_ini',$reservation->horario_ini)->where('horario_end',$reservation->horario_end)
-           ->where('reservation_date',$reservation->reservation_date)->where('state',$reservation->state)){
-            return response()->json([
-                "message" => "Ya existe la solicitud de reserva"
-            ]);
-        }
+        // if(UserBooking::where('user_id',$reservation->user_id)->where('subject_id',$reservation->subject_id)
+        //    ->where('horario_ini',$reservation->horario_ini)->where('horario_end',$reservation->horario_end)
+        //    ->where('reservation_date',$reservation->reservation_date)->where('state',$reservation->state)){
+        //     return response()->json([
+        //         "message" => "Ya existe la solicitud de reserva"
+        //     ]);
+        // }
 
         $group_list = "";
         $groups = $request->group_list;
