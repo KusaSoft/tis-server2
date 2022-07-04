@@ -62,7 +62,8 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', '!=', $user_id)->get();
     if (count($groups) == 0) {
         return response()->json([
-            "message" => "no hay grupos registrados"
+            "message" => "no hay grupos registrados",
+            "successful" => false
         ]);
     }
     $subject_name = Subject::find($subject_id)->name_subject;
@@ -540,15 +541,17 @@ Route::post('users', function (Request $request) {
         $user = new User();
         $role = $request->role;
         $name = $request->lastName." ".$request->firstName;
-        if(User::where('name',$name)->exists()){
+        if(User::where('name','ilike',$name)->exists()){
             return response()->json([
-                "message" => "Ya existe un usuario con el mismo nombre"
+                "message" => "Ya existe un usuario con el mismo nombre",
+                "successful" => false
             ]);
         }
         $email = $request->email;
         if(User::where('email',$email)->exists()){
             return response()->json([
-                "message" => "Ya existe un usuario con el mismo correo electronico"
+                "message" => "Ya existe un usuario con el mismo correo electronico",
+                "successful" => false
             ]);
         }
         $user->email = $email;
@@ -642,9 +645,10 @@ Route::post('subject_user', function (Request $request) {
     $subject_id = Subject::where('name_subject', $request->subject)->first()->id;
     $su->user_id = User::where('name', $request->teacher)->first()->id;
     $su->subject_id = Subject::where('name_subject', $request->subject)->first()->id;
-    if(SubjectUser::where('user_id',$user_id)->where('subject_id',$subject_id)->where('group',$request->number_group)->exists()){
+    if(SubjectUser::where('subject_id',$subject_id)->where('group',$request->number_group)->exists()){
         return response()->json([
-            "message" => "Este grupo ya existe"
+            "message" => "Este grupo ya esta registrado",
+            "successful" => false
         ]);
     }
     $su->group = $request->number_group;
