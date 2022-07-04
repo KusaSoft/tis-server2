@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\NotificationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -11,6 +12,8 @@ use App\Models\UserBooking;
 use Illuminate\Database\QueryException;
 use Symfony\Component\Translation\Dumper\YamlFileDumper;
 use Illuminate\Support\Facades\Validator;
+
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,15 +134,37 @@ Route::post('reservation-request', function (Request $request) {
         //creamos una nueva solicitud de reserva
         $reservation = new UserBooking();
         $reservation->user_id    = (User::where('name', $request->name)->first()->id);
+        if(!Subject::where('name_subject',$request->subject)->exists()){
+            return response()->json([
+                "message" => "La materia especificada no existe"
+            ]);
+        }
         $reservation->subject_id = (Subject::where('name_subject', $request->subject)->first()->id);
+
         $reservation->horario_ini = $request->horario_ini;
         $reservation->horario_end = $request->horario_end;
         $reservation->request_reason = $request->request_reason;
         $reservation->reservation_date = $request->reservation_date;
         $reservation->classroom_id = 1;
         $reservation->state = $request->state;
+        if(UserBooking::where('user_id',$reservation->user_id)->where('subject_id',$reservation->subject_id)
+           ->where('horario_ini',$reservation->horario_ini)->where('horario_end',$reservation->horario_end)
+           ->where('request_reason',$reservation->request_reason)->where('reservation_date',$reservation->reservation_date)->where('state',$reservation->state)){
+            return response()->json([
+                "message" => "Ya existe la solicitud de reserva"
+            ]);
+        }
+
+
         $group_list = "";
         $groups = $request->group_list;
+        foreach($groups as $group){
+            if(!SubjectUser::where('id',$group)->exists()){
+                return response()->json([
+                    "message" => "Un grupo de la solicitud no esta registrado"
+                ]);
+            }
+        }
         $len = count($groups);
         for ($i = 0; $i < $len; $i++) {
             if ($i == 0) {
@@ -152,6 +177,13 @@ Route::post('reservation-request', function (Request $request) {
         $reservation->total_students = $request->total_students;
         $other_groups = "";
         $other_group_list = $request->other_group_list;
+        foreach($other_group_list as $group){
+            if(!SubjectUser::where('id',$group)->exists()){
+                return response()->json([
+                    "message" => "Un grupo de la solicitud no esta registrado"
+                ]);
+            }
+        }
         $len2 = count($other_group_list);
         for ($i = 0; $i < $len2; $i++) {
             if ($i == 0) {
@@ -507,12 +539,27 @@ Route::post('users', function (Request $request) {
     try {
         $user = new User();
         $role = $request->role;
-        $user->name = $request->name;
+        $name = $request->lastName." ".$request->firstName;
+        if(User::where('name',$name)->exists()){
+            return response()->json([
+                "message" => "Ya existe un usuario con el mismo nombre"
+            ]);
+        }
+        $email = $request->email;
+        if(User::where('email',$email)->exists()){
+            return response()->json([
+                "message" => "Ya existe un usuario con el mismo correo electronico"
+            ]);
+        }
+        $user->email = $email;
+        $user->name = $name;
         $user->enabled = true;
         $user->password = $request->password;
+
         $user->email = $request->email;
         $role_id = Role::where('name', $role)->first()->id;
         $user->role_id = $role_id;
+        Mail::to($request->email)->send(new NotificationMail);
         $user->save();
         return response()->json([
             "message" => 'Enviado exitosamente',
@@ -591,8 +638,15 @@ Route::get('subject_user', function () {
 
 Route::post('subject_user', function (Request $request) {
     $su = new SubjectUser();
+    $user_id = User::where('name', $request->teacher)->first()->id;
+    $subject_id = Subject::where('name_subject', $request->subject)->first()->id;
     $su->user_id = User::where('name', $request->teacher)->first()->id;
     $su->subject_id = Subject::where('name_subject', $request->subject)->first()->id;
+    if(SubjectUser::where('user_id',$user_id)->where('subject_id',$subject_id)->where('group',$request->number_group)->exists()){
+        return response()->json([
+            "message" => "Este grupo ya existe"
+        ]);
+    }
     $su->group = $request->number_group;
     $su->save();
     return response()->json([
@@ -1013,4 +1067,13 @@ Route::get('test/user_booking', function () {
 });
 Route::get('test/roles', function () {
     return Role::all();
+});
+
+Route::get('email/notificar',function(){
+    $nombre = "mauricio";
+    Mail::to('madavaing@gmail.com')->send(new NotificationMail($nombre));
+    return response()->json([
+        "message" => "notificacion enviada"
+    ]);
+    // return view('emails.notificacion');
 });
