@@ -1057,10 +1057,13 @@ Route::put('reservations/confirm/{userbooking_id}/{state}', function ($userbooki
 Route::get('reservations/timed-out',function(){
     $reservs = UserBooking::all()->toArray();
     date_default_timezone_set("America/La_Paz");
+    $dateToday = new DateTime(date('Y-m-d'));
 
-    
-
-    return $reservs;
+    return array_filter($reservs,function($elem) use ($dateToday){
+        $reservation_date = $elem->reservation_date;
+        $dateReservation = new DateTime($reservation_date);
+        return $dateToday->getTimestamp() > $dateReservation->getTimestamp();
+    });
 });
 
 // ---------------------------------------------------------------------------------------------
