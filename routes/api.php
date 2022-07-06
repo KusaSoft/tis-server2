@@ -331,6 +331,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "state" => $userbooking->state,
             "group_list" => $group_list,
             "other_groups" => $other_group_list,
+            "notification_date" => $userbooking->notification_date,
             "assigned_classrooms" => $assigned_classrooms
         ]);
     } else {
