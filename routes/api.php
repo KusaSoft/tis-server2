@@ -99,9 +99,14 @@ Route::post('reservation-request', function (Request $request) {
             $user_id = $reserv['user_id'];
             $other_groups = $reserv['other_groups'];
             $other_groups_str = preg_split('/\s+/', $other_groups);
+
+            $user_ids = [];
+            foreach($other_groups_str as $group){
+                array_push($user_ids,$group['user_id']);
+            }
             if ($user_id == $res->user_id) {
                 return true;
-            } else if (in_array($user_id, $other_groups_str)) {
+            } else if (in_array($user_id, $user_ids)) {
                 return true;
             }
             return false;
