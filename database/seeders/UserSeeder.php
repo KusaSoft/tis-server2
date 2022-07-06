@@ -29,6 +29,13 @@ class UserSeeder extends Seeder
                 'email' => 'leticia@gmail.com'
             ],
             [
+                "role_id" => '2',
+                'name' => 'Yara Alejandra',
+                'password' => '12345',
+                'enabled' => true,
+                'email' => 'yara@gmail.com'
+            ],
+            [
                 'role_id' => '1',
                 'name' => 'Corina Flores',
                 'password' => '12345',
