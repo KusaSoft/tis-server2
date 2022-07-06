@@ -800,13 +800,13 @@ Route::put('reservations', function (Request $request) {
         return response()->json([
             "message" => "Esta solicitud ya fue asignada",
             "successful" => false
-        ]);
+        ],501);
     }
     if($res->state == 'rejected'){
         return response()->json([
             "message" => "Esta solicitud ya fue rechazada",
             "successful" => false
-        ]);
+        ],501);
     }
     $res->state = $request->state;
     $res->rejection_reason = $request->rejection_reason;
@@ -1080,6 +1080,11 @@ Route::get('reservations/timed-out',function(){
     });
 });
 
+Route::get('prueba',function(){
+    return response()->json([
+        "message" => "prueba"
+    ],501);
+});
 // ---------------------------------------------------------------------------------------------
 Route::get('test/users', function () {
     return User::all();
