@@ -517,7 +517,8 @@ Route::get('reservations', function () {
             "group_list" => $group_list,
             "other_group_list" => $other_group_list,
             "reservation_date" => $elem->reservation_date,
-            "register_date" => $elem->register_date
+            "register_date" => $elem->register_date,
+            "notification_date" => $elem->notification_date
         );
     })->toArray());
 });
@@ -554,7 +555,7 @@ Route::post('users', function (Request $request) {
         $user->email = $request->email;
         $role_id = Role::where('name', $role)->first()->id;
         $user->role_id = $role_id;
-        Mail::to($request->email)->send(new NotificationMail);
+        Mail::to($request->email)->send(new NotificationMail($user->name));
         $user->save();
         return response()->json([
             "message" => 'Enviado exitosamente',
