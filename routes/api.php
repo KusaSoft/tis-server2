@@ -150,7 +150,7 @@ Route::post('reservation-request', function (Request $request) {
         $reservation->state = $request->state;
 
 
-
+// --------------------------------------------------------------------------------------------------------------------------
         $reservations = UserBooking::where(function ($q) {
             return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
         })->where('reservation_date', $reservation->reservation_date)->where('user_id',$reservation->user_id)->get()->toArray();
@@ -167,6 +167,7 @@ Route::post('reservation-request', function (Request $request) {
 
 
 
+// --------------------------------------------------------------------------------------------------------------------------
 
         $group_list = "";
         $groups = $request->group_list;
@@ -434,6 +435,7 @@ Route::put('reservation/reject/{userbooking_id}', function (Request $request, $u
     $rejection_reason = $request->rejection_reason;
     $reserv->state = $status;
     $reserv->rejection_reason = $rejection_reason;
+    $reserv->assigned_classrooms = "";
     $reserv->save();
     return response()->json([
         "message" => "La solicitud de reserva se actualizo",
