@@ -155,7 +155,7 @@ Route::post('reservation-request', function (Request $request) {
             return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
         })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
         $reservations = array_filter($reservations,function($reserv) use($reservation){
-            $user_id = $reserv->user_id;
+            $user_id = $reserv['user_id'];
             $other_groups = $reserv->other_groups;
             $other_groups_str = preg_split('/\s+/',$other_groups);
             if($user_id == $reservation->user_id){
