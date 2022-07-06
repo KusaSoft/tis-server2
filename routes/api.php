@@ -403,6 +403,24 @@ Route::put('reservation/{userbooking_id}', function (Request $request, $userbook
     }
 });
 
+Route::put('reservation/reject/{userbooking_id}',function(Request $request,$userbooking_id){
+    $reserv = UserBooking::find($userbooking_id);
+    if(!isset($reserv)){
+        return response()->json([
+            "message" => "La solicitud especificada no existe",
+            "successfull" => false
+        ]);
+    }
+    $status = $request->status;
+    $rejection_reason = $request->rejection_reason;
+    $reserv->status = $status;
+    $reserv->rejection_reason = $rejection_reason;
+    $reserv->save();
+    return response()->json([
+        "message" => "La solicitud de reserva se actualizo",
+        "successful" => true
+    ]);
+});
 
 Route::delete('draft/{userbooking_id}', function ($userbooking_id) {
     $ub = UserBooking::find($userbooking_id);
