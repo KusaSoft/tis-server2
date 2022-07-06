@@ -91,35 +91,34 @@ Route::post('reservation-request', function (Request $request) {
         $res->reservation_date = $request->reservation_date;
         $res->total_students = $request->total_students;
         $res->state = $request->state;
-// --------------------------------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------
         $reservations = UserBooking::where(function ($q) {
-            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state','sent');
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state', 'sent');
         })->where('reservation_date', $res->reservation_date)->get()->toArray();
-        $reservations = array_filter($reservations,function($reserv) use($res){
+        $reservations = array_filter($reservations, function ($reserv) use ($res) {
             $user_id = $reserv['user_id'];
             $other_groups = $reserv['other_groups'];
-            $other_groups_str = preg_split('/\s+/',$other_groups);
-            if($user_id == $res->user_id){
+            $other_groups_str = preg_split('/\s+/', $other_groups);
+            if ($user_id == $res->user_id) {
                 return true;
-            }
-            else if(in_array($user_id,$other_groups_str)){
+            } else if (in_array($user_id, $other_groups_str)) {
                 return true;
             }
             return false;
         });
         $hi1 = $res->horario_ini;
         $he1 = $res->horario_end;
-        foreach($reservations as $reserv){
+        foreach ($reservations as $reserv) {
             $hi2 = $reserv['horario_ini'];
             $he2 = $reserv['horario_end'];
-            if(seSolapan($hi1,$he1,$hi2,$he2)){
+            if (seSolapan($hi1, $he1, $hi2, $he2)) {
                 return response()->json([
                     "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
                     "successful" => false
                 ]);
             }
         }
-// --------------------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------
         $group_list = "";
         $groups = $request->group_list;
         $len = count($groups);
@@ -177,37 +176,34 @@ Route::post('reservation-request', function (Request $request) {
         $reservation->reservation_date = $request->reservation_date;
         $reservation->classroom_id = 1;
         $reservation->state = $request->state;
-
-
-// --------------------------------------------------------------------------------------------------------------------------
+        // --------------------------------------------------
         $reservations = UserBooking::where(function ($q) {
-            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state','sent');
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state', 'sent');
         })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
-        $reservations = array_filter($reservations,function($reserv) use($reservation){
+        $reservations = array_filter($reservations, function ($reserv) use ($reservation) {
             $user_id = $reserv['user_id'];
             $other_groups = $reserv['other_groups'];
-            $other_groups_str = preg_split('/\s+/',$other_groups);
-            if($user_id == $reservation->user_id){
+            $other_groups_str = preg_split('/\s+/', $other_groups);
+            if ($user_id == $reservation->user_id) {
                 return true;
-            }
-            else if(in_array($user_id,$other_groups_str)){
+            } else if (in_array($user_id, $other_groups_str)) {
                 return true;
             }
             return false;
         });
         $hi1 = $reservation->horario_ini;
         $he1 = $reservation->horario_end;
-        foreach($reservations as $reserv){
+        foreach ($reservations as $reserv) {
             $hi2 = $reserv['horario_ini'];
             $he2 = $reserv['horario_end'];
-            if(seSolapan($hi1,$he1,$hi2,$he2)){
+            if (seSolapan($hi1, $he1, $hi2, $he2)) {
                 return response()->json([
                     "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
                     "successful" => false
                 ]);
             }
         }
-// --------------------------------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------
         $group_list = "";
         $groups = $request->group_list;
         foreach ($groups as $group) {
@@ -634,7 +630,7 @@ Route::post('users', function (Request $request) {
         $user->email = $request->email;
         $role_id = Role::where('name', $role)->first()->id;
         $user->role_id = $role_id;
-        Mail::to($request->email)->send(new NotificationMail($user->name, $user->email, $user->password));
+        Mail::to($request->email)->send(new NotificationMail("Registro en Kusasoft", $user->name, $user->email, $user->password));
         $user->save();
         return response()->json([
             "message" => 'Enviado exitosamente',
@@ -892,6 +888,12 @@ Route::put('reservations', function (Request $request) {
     date_default_timezone_set("America/La_Paz");
     $res->notification_date = date('Y-m-d H:i:s');
 
+    // if ($res->state == 'assigned') {
+
+    //     Mail::to('madavaing@gmail.com')->send(new NotificationMail("Prueba de envio", $nombre, 'madavaing@gmail.com', '12345'));
+    // } else if ($res->state == 'rejected') {
+    //     Mail::to('madavaing@gmail.com')->send(new NotificationMail("Prueba de envio", $nombre, 'madavaing@gmail.com', '12345'));
+    // }
     $res->save();
     return response()->json([
         "message" => "...",
@@ -1179,7 +1181,7 @@ Route::get('test/roles', function () {
 
 Route::get('email/notificar', function () {
     $nombre = "mauricio";
-    Mail::to('madavaing@gmail.com')->send(new NotificationMail($nombre, 'madavaing@gmail.com', '12345'));
+    Mail::to('madavaing@gmail.com')->send(new NotificationMail("Prueba de envio", $nombre, 'madavaing@gmail.com', '12345'));
     return response()->json([
         "message" => "notificacion enviada"
     ]);

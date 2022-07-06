@@ -11,7 +11,7 @@ class NotificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $subject = "KUSASOFT";
+    public $subject;
     public $name;
     public $email;
     public $password;
@@ -21,7 +21,8 @@ class NotificationMail extends Mailable
      *
      * @return void
      */
-    public function __construct($name,$email,$password){
+    public function __construct($subject,$name,$email,$password){
+        $this->subject = $subject;
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
