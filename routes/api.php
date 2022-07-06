@@ -102,7 +102,8 @@ Route::post('reservation-request', function (Request $request) {
 
             $user_ids = [];
             foreach($other_groups_str as $group){
-                array_push($user_ids,$group['user_id']);
+                $u_id = SubjectUser::find($group)->user_id;
+                array_push($user_ids,$u_id);
             }
             if ($user_id == $res->user_id) {
                 return true;
@@ -192,7 +193,8 @@ Route::post('reservation-request', function (Request $request) {
 
             $user_ids = [];
             foreach($other_groups_str as $group){
-                array_push($user_ids,$group['user_id']);
+                $u_id = SubjectUser::find($group)->user_id;
+                array_push($user_ids,$u_id);
             }
             if ($user_id == $reservation->user_id) {
                 return true;
