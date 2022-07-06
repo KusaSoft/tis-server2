@@ -999,7 +999,6 @@ Route::get('notifications/{user_id}', function ($user_id) {
     return $reservations->map(function ($elem) {
         $user = User::find($elem->user_id)->name;
         $subject = Subject::find($elem->subject_id)->name_subject;
-        $name_subject = $subject->name_subject;
         $assigned_classrooms = [];
         $assigned_classrooms_str  = explode(" ", $elem->assigned_classrooms);
         $classrooms = "Se asigno las aulas: ";
@@ -1020,7 +1019,7 @@ Route::get('notifications/{user_id}', function ($user_id) {
             "reservation_date" => $elem->reservation_date,
             "notification_date" => $elem->notification_date,
             "detail" => $elem->state == "rejected" ? $elem->rejection_reason : $classrooms,
-            "subject" => $elem->name_subject
+            "subject" => $subject
         );
     });
 })->where('user_id', '[0-9]+');
