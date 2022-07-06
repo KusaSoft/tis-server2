@@ -97,7 +97,7 @@ Route::post('reservation-request', function (Request $request) {
         })->where('reservation_date', $res->reservation_date)->get()->toArray();
         $reservations = array_filter($reservations, function ($reserv) use ($res) {
             $user_id = $reserv['user_id'];
-            $other_groups = $reserv['other_groups'];
+            $other_groups = $reserv['other_group_list'];
             $other_groups_str = preg_split('/\s+/', $other_groups);
 
             $user_ids = [];
@@ -187,7 +187,7 @@ Route::post('reservation-request', function (Request $request) {
         })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
         $reservations = array_filter($reservations, function ($reserv) use ($reservation) {
             $user_id = $reserv['user_id'];
-            $other_groups = $reserv['other_groups'];
+            $other_groups = $reserv['other_group_list'];
             $other_groups_str = preg_split('/\s+/', $other_groups);
 
             $user_ids = [];
