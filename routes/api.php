@@ -90,36 +90,6 @@ Route::post('reservation-request/debug', function (Request $request) {
         $res->reservation_date = $request->reservation_date;
         $res->total_students = $request->total_students;
         $res->state = $request->state;
-// --------------------------------------------------------------------------------------------------------------------------
-        $reservations = UserBooking::where(function ($q) {
-            return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
-        })->where('reservation_date', $res->reservation_date)->get()->toArray();
-        $reservations = array_filter($reservations,function($reserv) use($res){
-            $user_id = $reserv['user_id'];
-            $other_groups = $reserv['other_groups'];
-            $other_groups_str = preg_split('/\s+/',$other_groups);
-            if($user_id == $res->user_id){
-                return true;
-            }
-            else if(in_array($user_id,$other_groups_str)){
-                return true;
-            }
-            return false;
-        });
-        return $reservations;
-        $hi1 = $res->horario_ini;
-        $he1 = $res->horario_end;
-        foreach($reservations as $reserv){
-            $hi2 = $reserv['horario_ini'];
-            $he2 = $reserv['horario_end'];
-            if(seSolapan($hi1,$he1,$hi2,$he2)){
-                return response()->json([
-                    "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
-                    "successful" => false
-                ]);
-            }
-        }
-// --------------------------------------------------------------------------------------------------------------------------
         $group_list = "";
         $groups = $request->group_list;
         $len = count($groups);
@@ -178,6 +148,36 @@ Route::post('reservation-request/debug', function (Request $request) {
         $reservation->classroom_id = 1;
         $reservation->state = $request->state;
 
+// --------------------------------------------------------------------------------------------------------------------------
+        $reservations = UserBooking::where(function ($q) {
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state','sent');
+        })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
+        $reservations = array_filter($reservations,function($reserv) use($reservation){
+            $user_id = $reserv['user_id'];
+            $other_groups = $reserv['other_groups'];
+            $other_groups_str = preg_split('/\s+/',$other_groups);
+            if($user_id == $reservation->user_id){
+                return true;
+            }
+            else if(in_array($user_id,$other_groups_str)){
+                return true;
+            }
+            return false;
+        });
+
+        $hi1 = $reservation->horario_ini;
+        $he1 = $reservation->horario_end;
+        foreach($reservations as $reserv){
+            $hi2 = $reserv['horario_ini'];
+            $he2 = $reserv['horario_end'];
+            if(seSolapan($hi1,$he1,$hi2,$he2)){
+                return response()->json([
+                    "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
+                    "successful" => false
+                ]);
+            }
+        }
+// --------------------------------------------------------------------------------------------------------------------------
 
         $group_list = "";
         $groups = $request->group_list;
@@ -342,6 +342,35 @@ Route::post('reservation-request', function (Request $request) {
         $reservation->state = $request->state;
 
 
+// --------------------------------------------------------------------------------------------------------------------------
+        $reservations = UserBooking::where(function ($q) {
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed');
+        })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
+        $reservations = array_filter($reservations,function($reserv) use($reservation){
+            $user_id = $reserv['user_id'];
+            $other_groups = $reserv['other_groups'];
+            $other_groups_str = preg_split('/\s+/',$other_groups);
+            if($user_id == $reservation->user_id){
+                return true;
+            }
+            else if(in_array($user_id,$other_groups_str)){
+                return true;
+            }
+            return false;
+        });
+        $hi1 = $reservation->horario_ini;
+        $he1 = $reservation->horario_end;
+        foreach($reservations as $reserv){
+            $hi2 = $reserv['horario_ini'];
+            $he2 = $reserv['horario_end'];
+            if(seSolapan($hi1,$he1,$hi2,$he2)){
+                return response()->json([
+                    "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
+                    "successful" => false
+                ]);
+            }
+        }
+// --------------------------------------------------------------------------------------------------------------------------
         $group_list = "";
         $groups = $request->group_list;
         foreach ($groups as $group) {
