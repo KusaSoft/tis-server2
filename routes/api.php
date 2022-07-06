@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\NotificationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -11,6 +12,8 @@ use App\Models\UserBooking;
 use Illuminate\Database\QueryException;
 use Symfony\Component\Translation\Dumper\YamlFileDumper;
 use Illuminate\Support\Facades\Validator;
+
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +62,8 @@ Route::get('groupsExc/{subject_id}/{user_id}', function ($subject_id, $user_id) 
     $groups = SubjectUser::where('subject_id', $subject_id)->where('user_id', '!=', $user_id)->get();
     if (count($groups) == 0) {
         return response()->json([
-            "message" => "no hay grupos registrados"
+            "message" => "no hay grupos registrados",
+            "successful" => false
         ]);
     }
     $subject_name = Subject::find($subject_id)->name_subject;
@@ -87,6 +91,40 @@ Route::post('reservation-request', function (Request $request) {
         $res->reservation_date = $request->reservation_date;
         $res->total_students = $request->total_students;
         $res->state = $request->state;
+        // -----------------------------------------------------
+        $reservations = UserBooking::where(function ($q) {
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state', 'sent');
+        })->where('reservation_date', $res->reservation_date)->get()->toArray();
+        $reservations = array_filter($reservations, function ($reserv) use ($res) {
+            $user_id = $reserv['user_id'];
+            $other_groups = $reserv['other_groups'];
+            $other_groups_str = preg_split('/\s+/', $other_groups);
+
+            $user_ids = [];
+            foreach($other_groups_str as $group){
+                $u_id = SubjectUser::find($group)->user_id;
+                array_push($user_ids,$u_id);
+            }
+            if ($user_id == $res->user_id) {
+                return true;
+            } else if (in_array($user_id, $user_ids)) {
+                return true;
+            }
+            return false;
+        });
+        $hi1 = $res->horario_ini;
+        $he1 = $res->horario_end;
+        foreach ($reservations as $reserv) {
+            $hi2 = $reserv['horario_ini'];
+            $he2 = $reserv['horario_end'];
+            if (seSolapan($hi1, $he1, $hi2, $he2)) {
+                return response()->json([
+                    "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
+                    "successful" => false
+                ]);
+            }
+        }
+        // ---------------------------------------------------------
         $group_list = "";
         $groups = $request->group_list;
         $len = count($groups);
@@ -131,15 +169,62 @@ Route::post('reservation-request', function (Request $request) {
         //creamos una nueva solicitud de reserva
         $reservation = new UserBooking();
         $reservation->user_id    = (User::where('name', $request->name)->first()->id);
+        if (!Subject::where('name_subject', $request->subject)->exists()) {
+            return response()->json([
+                "message" => "La materia especificada no existe"
+            ]);
+        }
         $reservation->subject_id = (Subject::where('name_subject', $request->subject)->first()->id);
+
         $reservation->horario_ini = $request->horario_ini;
         $reservation->horario_end = $request->horario_end;
         $reservation->request_reason = $request->request_reason;
         $reservation->reservation_date = $request->reservation_date;
         $reservation->classroom_id = 1;
         $reservation->state = $request->state;
+        // --------------------------------------------------
+        $reservations = UserBooking::where(function ($q) {
+            return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state', 'sent');
+        })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
+        $reservations = array_filter($reservations, function ($reserv) use ($reservation) {
+            $user_id = $reserv['user_id'];
+            $other_groups = $reserv['other_groups'];
+            $other_groups_str = preg_split('/\s+/', $other_groups);
+
+            $user_ids = [];
+            foreach($other_groups_str as $group){
+                $u_id = SubjectUser::find($group)->user_id;
+                array_push($user_ids,$u_id);
+            }
+            if ($user_id == $reservation->user_id) {
+                return true;
+            } else if (in_array($user_id, $user_ids)) {
+                return true;
+            }
+            return false;
+        });
+        $hi1 = $reservation->horario_ini;
+        $he1 = $reservation->horario_end;
+        foreach ($reservations as $reserv) {
+            $hi2 = $reserv['horario_ini'];
+            $he2 = $reserv['horario_end'];
+            if (seSolapan($hi1, $he1, $hi2, $he2)) {
+                return response()->json([
+                    "message" => "No se puede llevar a cabo la solicitud ya que existen conflicto de hora con solicitudes anteriores",
+                    "successful" => false
+                ]);
+            }
+        }
+        // -----------------------------------------------------
         $group_list = "";
         $groups = $request->group_list;
+        foreach ($groups as $group) {
+            if (!SubjectUser::where('id', $group)->exists()) {
+                return response()->json([
+                    "message" => "Un grupo de la solicitud no esta registrado"
+                ]);
+            }
+        }
         $len = count($groups);
         for ($i = 0; $i < $len; $i++) {
             if ($i == 0) {
@@ -152,6 +237,13 @@ Route::post('reservation-request', function (Request $request) {
         $reservation->total_students = $request->total_students;
         $other_groups = "";
         $other_group_list = $request->other_group_list;
+        foreach ($other_group_list as $group) {
+            if (!SubjectUser::where('id', $group)->exists()) {
+                return response()->json([
+                    "message" => "Un grupo de la solicitud no esta registrado"
+                ]);
+            }
+        }
         $len2 = count($other_group_list);
         for ($i = 0; $i < $len2; $i++) {
             if ($i == 0) {
@@ -306,6 +398,7 @@ Route::get('reservation/{userbooking_id}', function ($userbooking_id) {
             "state" => $userbooking->state,
             "group_list" => $group_list,
             "other_groups" => $other_group_list,
+            "notification_date" => $userbooking->notification_date,
             "assigned_classrooms" => $assigned_classrooms
         ]);
     } else {
@@ -377,6 +470,25 @@ Route::put('reservation/{userbooking_id}', function (Request $request, $userbook
     }
 });
 
+Route::put('reservation/reject/{userbooking_id}', function (Request $request, $userbooking_id) {
+    $reserv = UserBooking::find($userbooking_id);
+    if (!isset($reserv)) {
+        return response()->json([
+            "message" => "La solicitud especificada no existe",
+            "successfull" => false
+        ]);
+    }
+    $status = $request->status;
+    $rejection_reason = $request->rejection_reason;
+    $reserv->state = $status;
+    $reserv->rejection_reason = $rejection_reason;
+    $reserv->assigned_classrooms = "";
+    $reserv->save();
+    return response()->json([
+        "message" => "La solicitud de reserva se actualizo",
+        "successful" => true
+    ]);
+});
 
 Route::delete('draft/{userbooking_id}', function ($userbooking_id) {
     $ub = UserBooking::find($userbooking_id);
@@ -492,7 +604,8 @@ Route::get('reservations', function () {
             "group_list" => $group_list,
             "other_group_list" => $other_group_list,
             "reservation_date" => $elem->reservation_date,
-            "register_date" => $elem->register_date
+            "register_date" => $elem->register_date,
+            "notification_date" => $elem->notification_date
         );
     })->toArray());
 });
@@ -507,12 +620,29 @@ Route::post('users', function (Request $request) {
     try {
         $user = new User();
         $role = $request->role;
-        $user->name = $request->name;
+        $name = $request->lastName . " " . $request->firstName;
+        if (User::where('name', 'ilike', $name)->exists()) {
+            return response()->json([
+                "message" => "Ya existe un usuario con el mismo nombre",
+                "successful" => false
+            ]);
+        }
+        $email = strtolower($request->email);
+        if (User::where('email', $email)->exists()) {
+            return response()->json([
+                "message" => "Ya existe un usuario con el mismo correo electronico",
+                "successful" => false
+            ]);
+        }
+        $user->email = $email;
+        $user->name = $name;
         $user->enabled = true;
         $user->password = $request->password;
+
         $user->email = $request->email;
         $role_id = Role::where('name', $role)->first()->id;
         $user->role_id = $role_id;
+        Mail::to($request->email)->send(new NotificationMail("Registro en Kusasoft", $user->name, $user->email, $user->password));
         $user->save();
         return response()->json([
             "message" => 'Enviado exitosamente',
@@ -543,10 +673,12 @@ Route::put('users/{user_id}', function (Request $request, $user_id) {
 
 Route::post('subjects/', function (Request $request) {
     $subj = null;
-    $subj = Subject::where('name_subject', $request->name_subject)->first();
+    $name_subject = remove_accents($request->name_subject);
+    $name_subject = strtoupper($name_subject);
+    $subj = Subject::where('name_subject', $name_subject)->first();
     if (!isset($subj)) {
         $newSubject = new Subject();
-        $newSubject->name_subject = $request->name_subject;
+        $newSubject->name_subject = $name_subject;
         $newSubject->save();
         return response()->json([
             "message" => "Nueva materia registrada con exito"
@@ -591,8 +723,16 @@ Route::get('subject_user', function () {
 
 Route::post('subject_user', function (Request $request) {
     $su = new SubjectUser();
+    $user_id = User::where('name', $request->teacher)->first()->id;
+    $subject_id = Subject::where('name_subject', $request->subject)->first()->id;
     $su->user_id = User::where('name', $request->teacher)->first()->id;
     $su->subject_id = Subject::where('name_subject', $request->subject)->first()->id;
+    if (SubjectUser::where('subject_id', $subject_id)->where('group', $request->number_group)->exists()) {
+        return response()->json([
+            "message" => "Este grupo ya esta registrado",
+            "successful" => false
+        ]);
+    }
     $su->group = $request->number_group;
     $su->save();
     return response()->json([
@@ -735,6 +875,19 @@ Route::get('classroom/{classroom_id}', function ($classroom_id) {
 Route::put('reservations', function (Request $request) {
     $id = $request->id;
     $res = UserBooking::find($id);
+
+    if ($res->state == 'assigned') {
+        return response()->json([
+            "message" => "Esta solicitud ya fue asignada",
+            "successful" => false
+        ]);
+    }
+    if ($res->state == 'rejected') {
+        return response()->json([
+            "message" => "Esta solicitud ya fue rechazada",
+            "successful" => false
+        ]);
+    }
     $res->state = $request->state;
     $res->rejection_reason = $request->rejection_reason;
 
@@ -747,6 +900,12 @@ Route::put('reservations', function (Request $request) {
     date_default_timezone_set("America/La_Paz");
     $res->notification_date = date('Y-m-d H:i:s');
 
+    // if ($res->state == 'assigned') {
+
+    //     Mail::to('madavaing@gmail.com')->send(new NotificationMail("Prueba de envio", $nombre, 'madavaing@gmail.com', '12345'));
+    // } else if ($res->state == 'rejected') {
+    //     Mail::to('madavaing@gmail.com')->send(new NotificationMail("Prueba de envio", $nombre, 'madavaing@gmail.com', '12345'));
+    // }
     $res->save();
     return response()->json([
         "message" => "...",
@@ -947,7 +1106,8 @@ Route::get('notifications/{user_id}', function ($user_id) {
             "state" => $elem->state,
             "reservation_date" => $elem->reservation_date,
             "notification_date" => $elem->notification_date,
-            "detail" => $elem->state == "rejected" ? $elem->rejection_reason : $classrooms
+            "detail" => $elem->state == "rejected" ? $elem->rejection_reason : $classrooms,
+            "subject" => $subject
         );
     });
 })->where('user_id', '[0-9]+');
@@ -994,7 +1154,23 @@ Route::put('reservations/confirm/{userbooking_id}/{state}', function ($userbooki
     ]);
 });
 
+Route::get('reservations/timed-out', function () {
+    $reservs = UserBooking::all()->toArray();
+    date_default_timezone_set("America/La_Paz");
+    $dateToday = new DateTime(date('Y-m-d'));
 
+    return array_filter($reservs, function ($elem) use ($dateToday) {
+        $reservation_date = $elem->reservation_date;
+        $dateReservation = new DateTime($reservation_date);
+        return $dateToday->getTimestamp() > $dateReservation->getTimestamp();
+    });
+});
+
+Route::get('prueba', function () {
+    return response()->json([
+        "message" => "prueba"
+    ], 501);
+});
 // ---------------------------------------------------------------------------------------------
 Route::get('test/users', function () {
     return User::all();
@@ -1013,4 +1189,13 @@ Route::get('test/user_booking', function () {
 });
 Route::get('test/roles', function () {
     return Role::all();
+});
+
+Route::get('email/notificar', function () {
+    $nombre = "mauricio";
+    Mail::to('madavaing@gmail.com')->send(new NotificationMail("Prueba de envio", $nombre, 'madavaing@gmail.com', '12345'));
+    return response()->json([
+        "message" => "notificacion enviada"
+    ]);
+    // return view('emails.notificacion');
 });

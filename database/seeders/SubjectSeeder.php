@@ -15,47 +15,48 @@ class SubjectSeeder extends Seeder
     public function run()
     {
         $intro = new Subject();
-        $intro->name_subject = "Introduccion a la programacion";
+        $intro->name_subject = "INTRODUCCION A LA PROGRAMACION";
         $intro->save();
 
         $elem = new Subject();
-        $elem->name_subject = "Elementos de Programacion Y Estructura De Datos"; 
+        $elem->name_subject = "ELEMENTOS DE PROGRAMACION Y ESTRUCTURA DE DATOS"; 
         $elem->save();
 
         $metodos = new Subject();
-        $metodos->name_subject = "Metodos Y Tecnicas De Programacion"; 
+        $metodos->name_subject = "METODOS Y TECNICAS DE PROGRAMACION"; 
         $metodos->save();
 
         $inter = new Subject();
-        $inter->name_subject = "Interaccion Humano Computador"; 
+        $inter->name_subject = "INTERACCION HUMANO COMPUTADOR"; 
         $inter->save();
 
         $tall = new Subject();
-        $tall->name_subject = "Taller de Ingenieria de Software"; 
+        $tall->name_subject = "TALLER DE INGENIERIA DE SOFTWARE"; 
         $tall->save();
 
         $talle = new Subject();
-        $talle->name_subject = "Taller De Grado I"; 
+        $talle->name_subject = "TALLER DE GRADO I"; 
         $talle->save();
 
+
         $sist = new Subject();
-        $sist->name_subject = "Sistemas De Informacion I"; 
+        $sist->name_subject = "SISTEMAS DE INFORMACION I"; 
         $sist->save();
 
         $sistem = new Subject();
-        $sistem->name_subject = "Sistemas De Informacion II"; 
+        $sistem->name_subject = "SISTEMAS DE INFORMACION II"; 
         $sistem->save();
 
         $inge = new Subject();
-        $inge->name_subject = "Ingenieria De Software"; 
+        $inge->name_subject = "INGENIERIA DE SOFTWARE"; 
         $inge->save();
 
         $algor = new Subject();
-        $algor->name_subject = "Algoritmos Avanzados"; 
+        $algor->name_subject = "ALGORITMOS AVANZADOS"; 
         $algor->save();
 
         $arqui = new Subject();
-        $arqui->name_subject = "Arquitectura De Computadoras I"; 
+        $arqui->name_subject = "ARQUITECTURA DE COMPUTADORAS I"; 
         $arqui->save();
 
     }

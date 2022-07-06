@@ -161,6 +161,13 @@ class UserSeeder extends Seeder
                 'enabled' => true,
                 'email' => 'acha_perez@gmai.com'
             ],
+            [
+                "role_id" => '2',
+                'name' => 'Yara Alejandra',
+                'password' => '12345',
+                'enabled' => true,
+                'email' => 'yara@gmail.com'
+            ],
         ];
         DB::table('users')->insert($data);
     }
