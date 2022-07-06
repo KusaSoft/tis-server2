@@ -556,7 +556,7 @@ Route::post('users', function (Request $request) {
         $user->email = $request->email;
         $role_id = Role::where('name', $role)->first()->id;
         $user->role_id = $role_id;
-        Mail::to($request->email)->send(new NotificationMail($user->name));
+        Mail::to($request->email)->send(new NotificationMail($user->name,$user->email,$user->password));
         $user->save();
         return response()->json([
             "message" => 'Enviado exitosamente',
@@ -1101,7 +1101,7 @@ Route::get('test/roles', function () {
 
 Route::get('email/notificar',function(){
     $nombre = "mauricio";
-    Mail::to('madavaing@gmail.com')->send(new NotificationMail($nombre));
+    Mail::to('madavaing@gmail.com')->send(new NotificationMail($nombre,'madavaing@gmail.com','12345'));
     return response()->json([
         "message" => "notificacion enviada"
     ]);
