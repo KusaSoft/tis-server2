@@ -798,12 +798,14 @@ Route::put('reservations', function (Request $request) {
 
     if($res->state == 'assigned'){
         return response()->json([
-            "message" => "Esta solicitud ya fue asignada"
+            "message" => "Esta solicitud ya fue asignada",
+            "successful" => false
         ]);
     }
     if($res->state == 'rejected'){
         return response()->json([
-            "message" => "Esta solicitud ya fue rechazada"
+            "message" => "Esta solicitud ya fue rechazada",
+            "successful" => false
         ]);
     }
     $res->state = $request->state;
