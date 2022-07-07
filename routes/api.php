@@ -98,12 +98,13 @@ Route::post('reservation-request', function (Request $request) {
         $reservations = array_filter($reservations, function ($reserv) use ($res) {
             $user_id = $reserv['user_id'];
             $other_groups = $reserv['other_groups'];
-            $other_groups_str = preg_split('/\s+/', $other_groups);
-
             $user_ids = [];
-            foreach($other_groups_str as $group){
-                $u_id = SubjectUser::find($group)->user_id;
-                array_push($user_ids,$u_id);
+            if (strlen($other_groups) > 0) {
+                $other_groups_str = preg_split('/\s+/', $other_groups);
+                foreach ($other_groups_str as $group) {
+                    $u_id = SubjectUser::find($group)->user_id;
+                    array_push($user_ids, $u_id);
+                }
             }
             if ($user_id == $res->user_id) {
                 return true;
@@ -189,12 +190,14 @@ Route::post('reservation-request', function (Request $request) {
         $reservations = array_filter($reservations, function ($reserv) use ($reservation) {
             $user_id = $reserv['user_id'];
             $other_groups = $reserv['other_groups'];
-            $other_groups_str = preg_split('/\s+/', $other_groups);
 
             $user_ids = [];
-            foreach($other_groups_str as $group){
-                $u_id = SubjectUser::find($group)->user_id;
-                array_push($user_ids,$u_id);
+            if (strlen($other_groups) > 0) {
+                $other_groups_str = preg_split('/\s+/', $other_groups);
+                foreach ($other_groups_str as $group) {
+                    $u_id = SubjectUser::find($group)->user_id;
+                    array_push($user_ids, $u_id);
+                }
             }
             if ($user_id == $reservation->user_id) {
                 return true;
