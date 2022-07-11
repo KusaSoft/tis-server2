@@ -187,6 +187,7 @@ Route::post('reservation-request', function (Request $request) {
         $reservations = UserBooking::where(function ($q) {
             return $q->where('state', 'assigned')->orWhere('state', 'confirmed')->orWhere('state', 'sent');
         })->where('reservation_date', $reservation->reservation_date)->get()->toArray();
+        return $reservations;
         $reservations = array_filter($reservations, function ($reserv) use ($reservation) {
             $user_id = $reserv['user_id'];
             $other_groups = $reserv['other_groups'];
@@ -206,6 +207,7 @@ Route::post('reservation-request', function (Request $request) {
             }
             return false;
         });
+        return $reservations;
         $hi1 = $reservation->horario_ini;
         $he1 = $reservation->horario_end;
         foreach ($reservations as $reserv) {
